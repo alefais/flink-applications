@@ -17,3 +17,5 @@ From inside the root directory `FraudDetection/`
 3. Stop Flink client
 
 `flink/bin/stop-cluster.sh`
+
+4. Check logs and output under `flink/log/`
