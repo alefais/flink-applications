@@ -79,7 +79,7 @@ public class FraudDetection {
                     .fieldsGrouping("spout", new Fields(Field.ENTITY_ID));
 
             builder.setBolt("sink", new ConsoleSink(sink_par_deg, gen_rate), sink_par_deg)
-                    .fieldsGrouping("fraud_predictor", new Fields(Field.ENTITY_ID));
+                    .shuffleGrouping("fraud_predictor");
 
             // prepare the configuration:
             Config conf = new Config();
