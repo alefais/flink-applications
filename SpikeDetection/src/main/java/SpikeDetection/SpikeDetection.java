@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The topology entry class.
+ *
  * @author Alessandra Fais
  */
 public class SpikeDetection {

@@ -19,7 +19,8 @@ import java.util.Map;
 
 /**
  * Calculates the average over a window for distinct elements.
- * http://github.com/surajwaghulde/storm-example-projects
+ *
+ * See http://github.com/surajwaghulde/storm-example-projects
  *
  * @author Alessandra Fais
  */
