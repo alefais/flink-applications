@@ -15,11 +15,6 @@ public interface BaseConstants {
         String SPOUT_CLASS       = "%s.spout.class";
         String SPOUT_PATH        = "%s.spout.path";
         String SPOUT_PARSER      = "%s.spout.parser";
-
-        String KAFKA_HOST           = "%s.kafka.zookeeper.host";
-        String KAFKA_SPOUT_TOPIC    = "%s.kafka.spout.topic";
-        String KAFKA_ZOOKEEPER_PATH = "%s.kafka.zookeeper.path";
-        String KAFKA_CONSUMER_ID    = "%s.kafka.consumer.id";
         
         String SINK_THREADS        = "%s.sink.threads";
         String SINK_CLASS          = "%s.sink.class";
