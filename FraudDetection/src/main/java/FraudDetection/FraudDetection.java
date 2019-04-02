@@ -29,7 +29,12 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * The topology entry class.
+ * The topology entry class. The Storm compatible API is used in order to submit
+ * a Storm topology to Flink. The used Storm classes are replaced with their
+ * Flink counterparts in the Storm client code that assembles the topology.
+ *
+ * See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
+ *
  * @author Alessandra Fais
  */
 public class FraudDetection {
@@ -42,11 +47,9 @@ public class FraudDetection {
     }
 
     /**
-     * Use the Storm compatible API in order to submit a Storm topology to Flink.
-     * The used Storm classes are replaced with their Flink counterparts in the
-     * Storm client code that assembles the topology.
-     * See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
+     * Execute the Storm topology.
      * @param args command line arguments
+     * @throws Exception
      */
     private static void topologyFlinkAdaptation(String[] args) throws Exception {
         if (args.length == 0) {
@@ -113,6 +116,11 @@ public class FraudDetection {
         }
     }
 
+    /**
+     * Embed Storm operators in the Flink streaming program.
+     * @param args command line arguments
+     * @throws Exception
+     */
     private static void spoutsANDboltsFlinkAdaptation(String[] args) throws Exception {
         ParameterTool params = ParameterTool.fromArgs(args);
         if (params.getNumberOfParameters() == 0) {

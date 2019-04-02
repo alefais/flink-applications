@@ -22,7 +22,7 @@ import java.util.Scanner;
  * and generating the stream of records toward the FraudPredictorBolt.
  *
  * Format of the input file:
- * EntityID,record_of<EntityID, op_type>
+ * entityID, transactionID, transactionType
  *
  * @author Alessandra Fais
  */
@@ -48,7 +48,7 @@ public class FileParserSpout extends BaseRichSpout {
 
     /**
      * Constructor: it expects the file path and the split expression needed
-     * to parse the file (it depends on the format of the input data)
+     * to parse the file (it depends on the format of the input data).
      * @param file path to the input data file
      * @param split split expression
      * @param gen_rate if the argument value is -1 then the spout generates tuples at
@@ -56,6 +56,7 @@ public class FileParserSpout extends BaseRichSpout {
      *                 if the argument value is different from -1 then the spout generates
      *                 tuples at the rate given by this parameter (measure the latency given
      *                 this generation rate)
+     * @param p_deg source parallelism degree
      */
     FileParserSpout(String file, String split, int gen_rate, int p_deg) {
         file_path = file;
@@ -105,7 +106,7 @@ public class FileParserSpout extends BaseRichSpout {
                 emitted + (rate * reset), t_elapsed,
                 generated / (t_elapsed / 1000)); // tuples per second
 
-        System.out.println("[FileParserSout] Bandwidth is " + (generated / (t_elapsed / 1000)) +
+        System.out.println("[FileParserSpout] Bandwidth is " + (generated / (t_elapsed / 1000)) +
                 " tuples per second (" + nt_execution + " generations).");
     }
 
