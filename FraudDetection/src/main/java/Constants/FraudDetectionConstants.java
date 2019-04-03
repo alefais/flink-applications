@@ -16,11 +16,10 @@ public interface FraudDetectionConstants extends BaseConstants {
     }
     
     interface Component extends BaseComponent {
-        String PREDICTOR = "predictorBolt";
+        String PREDICTOR = "fraud_predictor";
     }
     
     interface Field {
-        String TIMESTAMP = "timestamp";
         String ENTITY_ID = "entityID";
         String RECORD_DATA = "recordData";
         String SCORE = "score";
