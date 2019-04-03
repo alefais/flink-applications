@@ -93,8 +93,9 @@ public class ConsoleSink extends BaseRichBolt {
                     acc += tl;
                 }
                 double avg_latency = (double) acc / tuple_latencies.size(); // average latency in nanoseconds
-                LOG.info("[ConsoleSink] Processed tuples: {}. Timestamps registered: {}.", processed, tuple_latencies.size());
+                LOG.debug("[ConsoleSink] Processed tuples: {}. Timestamps registered: {}.", processed, tuple_latencies.size());
                 LOG.info("[ConsoleSink] Average latency: {} ms.", avg_latency / 1000000); // average latency in milliseconds
+                System.out.println("[ConsoleSink] Average latency is " + avg_latency / 1000000 + " ms.");
             }
         }
     }
