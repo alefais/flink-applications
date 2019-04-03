@@ -54,9 +54,9 @@ public class FraudDetection {
     private static void topologyFlinkAdaptation(String[] args) throws Exception {
         if (args.length == 0) {
             String alert =
-                    "In order to correctly run FraudDetection app you need to pass the following arguments:\n" +
-                            " file path\n" +
+                    "In order to correctly run FraudDetection app you can to pass the following (optional) arguments:\n" +
                             "Optional arguments:\n" +
+                            " file path (default specified in fd.properties)\n" +
                             " source parallelism degree (default 1)\n" +
                             " bolt parallelism degree (default 1)\n" +
                             " sink parallelism degree (default 1)\n" +
@@ -66,7 +66,7 @@ public class FraudDetection {
             LOG.error(alert);
         } else {
             // parse command line arguments
-            String file_path = args[0];
+            String file_path = (args.length > 0) ? args[0] : null;
             int source_par_deg = (args.length > 1) ? new Integer(args[1]) : 1;
             int bolt_par_deg = (args.length > 2) ? new Integer(args[2]) : 1;
             int sink_par_deg = (args.length > 3) ? new Integer(args[3]) : 1;
