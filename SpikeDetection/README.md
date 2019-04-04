@@ -6,27 +6,15 @@ From inside the root directory `SpikeDetection/`
 `mvn clean install`
 
 ## Run
-1. Start Flink client 
+1. Start Flink client: <br> `flink/bin/start-cluster.sh`
 
-`flink/bin/start-cluster.sh`
+2. SpikeDetection application can be run passing some arguments (if no command line argument is provided then default values defined in `sd.properties` file and `Constants` package are used). <br> Optional arguments are:<ul><li>source parallelism degree</li><li>moving average bolt parallelism degree</li><li>spike detector bolt parallelism degree</li><li>sink parallelism degree</li><li>source generation rate (default -1, generate at the max possible rate)</li><li>topology name (default FraudDetection)</li><li>execution mode (default local)</li></ul>
 
-2. In order to correctly run SpikeDetection app you need to pass the input file path as mandatory argument.<br>
-Optional arguments are:
-- source parallelism degree (default 1)
-- bolt1 parallelism degree (default 1)
-- bolt2 parallelism degree (default 1)
-- sink parallelism degree (default 1)
-- source generation rate (default -1, generate at the max possible rate)
-- topology name (default FraudDetection)
-- execution mode (default local)
+### Execution examples:
+* No argument is passed (all the nodes have parallelism degree equal to 1, the source generation rate is the maximum possible, the execution is local): <br> `flink run -c SpikeDetection.SpikeDetection target/SpikeDetection-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
-### Execution example:
-The parallelism degree is set to 4 for all the nodes in the topology.
+* The parallelism degree is set to 4 for all the nodes in the topology and a specific file path is passed <br> (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c SpikeDetection.SpikeDetection target/SpikeDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --filepath /data/app/sd/sensors.dat --pardeg 4`
 
-`flink run -c SpikeDetection.SpikeDetection target/SpikeDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --filepath /data/app/sd/sensors.dat --pardeg 4`
+3. Stop Flink client: <br> `flink/bin/stop-cluster.sh`
 
-3. Stop Flink client
-
-`flink/bin/stop-cluster.sh`
-
-4. Check logs and output under `flink/log/` or see results from the Flink UI
+4. Check logs and output under `flink/log/` or see results from the <b>Flink UI</b>.
