@@ -1,6 +1,9 @@
 package FraudDetection;
 
-import Constants.FraudDetectionConstants.Field;
+import Constants.BaseConstants;
+import Constants.FraudDetectionConstants;
+import Constants.BaseConstants.*;
+import Constants.FraudDetectionConstants.*;
 import Util.config.Configuration;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -34,8 +37,6 @@ import java.util.Properties;
  * Flink counterparts in the Storm client code that assembles the topology.
  *
  * See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
- *
- * @author Alessandra Fais
  */
 public class FraudDetection {
 
@@ -52,53 +53,63 @@ public class FraudDetection {
      * @throws Exception
      */
     private static void topologyFlinkAdaptation(String[] args) throws Exception {
-        if (args.length == 0) {
+        if (args.length == 1 && args[0].equals(BaseConstants.HELP)) {
             String alert =
-                    "In order to correctly run FraudDetection app you can to pass the following (optional) arguments:\n" +
-                            "Optional arguments:\n" +
-                            " file path (default specified in fd.properties)\n" +
-                            " source parallelism degree (default 1)\n" +
-                            " bolt parallelism degree (default 1)\n" +
-                            " sink parallelism degree (default 1)\n" +
-                            " source generation rate (default -1, generate at the max possible rate)\n" +
-                            " topology name (default FraudDetection)\n" +
-                            " execution mode (default local)";
+                    "In order to correctly run FraudDetection app you can pass the following (optional) arguments:\n" +
+                    "Optional arguments (default values are specified in fd.properties or defined as constants):\n" +
+                    " file path\n" +
+                    " source parallelism degree\n" +
+                    " bolt parallelism degree\n" +
+                    " sink parallelism degree\n" +
+                    " source generation rate (default -1, generate at the max possible rate)\n" +
+                    " topology name (default FraudDetection)\n" +
+                    " execution mode (default local)";
             LOG.error(alert);
         } else {
-            // parse command line arguments
-            String file_path = (args.length > 0) ? args[0] : null;
-            int source_par_deg = (args.length > 1) ? new Integer(args[1]) : 1;
-            int bolt_par_deg = (args.length > 2) ? new Integer(args[2]) : 1;
-            int sink_par_deg = (args.length > 3) ? new Integer(args[3]) : 1;
-            int gen_rate = (args.length > 4) ? new Integer(args[4]) : -1;
-            String topology_name = (args.length > 5) ? args[5] : "FraudDetection";
-            String ex_mode = (args.length > 6) ? args[6] : "local";
-
-            // prepare the topology
-            TopologyBuilder builder = new TopologyBuilder();
-            builder.setSpout("spout", new FileParserSpout(file_path, ",", gen_rate, source_par_deg), source_par_deg);
-
-            builder.setBolt("fraud_predictor", new FraudPredictorBolt(bolt_par_deg), bolt_par_deg)
-                    .fieldsGrouping("spout", new Fields(Field.ENTITY_ID));
-
-            builder.setBolt("sink", new ConsoleSink(sink_par_deg, gen_rate), sink_par_deg)
-                    .shuffleGrouping("fraud_predictor");
-
-            // prepare the configuration:
+            // load default configuration
             Config conf = new Config();
             conf.setDebug(false);
             conf.setNumWorkers(1);
             try {
-                // load configuration
-                String cfg = "/frauddetection/fd.properties";
+                String cfg = FraudDetectionConstants.DEFAULT_PROPERTIES;
                 Properties p = loadProperties(cfg);
 
                 conf = Configuration.fromProperties(p);
-                LOG.info("Loaded configuration file {}.", cfg);
+                LOG.debug("Loaded configuration file {}.", cfg);
             } catch (IOException e) {
                 LOG.error("Unable to load configuration file.", e);
                 throw new RuntimeException("Unable to load configuration file.", e);
             }
+
+            // parse command line arguments
+            String file_path = (args.length > 0) ?
+                    args[0] :
+                    ((Configuration) conf).getString(Conf.SPOUT_PATH);
+            int source_par_deg = (args.length > 1) ?
+                    new Integer(args[1]) :
+                    ((Configuration) conf).getInt(Conf.SPOUT_THREADS);
+            int bolt_par_deg = (args.length > 2) ?
+                    new Integer(args[2]) :
+                    ((Configuration) conf).getInt(Conf.PREDICTOR_THREADS);
+            int sink_par_deg = (args.length > 3) ?
+                    new Integer(args[3]) :
+                    ((Configuration) conf).getInt(Conf.SINK_THREADS);
+
+            // source generation rate (for tests)
+            int gen_rate = (args.length > 4) ? new Integer(args[4]) : Execution.DEFAULT_RATE;
+
+            String topology_name = (args.length > 5) ? args[5] : FraudDetectionConstants.DEFAULT_TOPO_NAME;
+            String ex_mode = (args.length > 6) ? args[6] : Execution.LOCAL_MODE;
+
+            // prepare the topology
+            TopologyBuilder builder = new TopologyBuilder();
+            builder.setSpout(Component.SPOUT, new FileParserSpout(file_path, ",", gen_rate, source_par_deg), source_par_deg);
+
+            builder.setBolt(Component.PREDICTOR, new FraudPredictorBolt(bolt_par_deg), bolt_par_deg)
+                    .fieldsGrouping(Component.SPOUT, new Fields(Field.ENTITY_ID));
+
+            builder.setBolt(Component.SINK, new ConsoleSink(sink_par_deg, gen_rate), sink_par_deg)
+                    .shuffleGrouping(Component.PREDICTOR);
 
             // build the topology
             FlinkTopology topology = FlinkTopology.createTopology(builder);
@@ -106,10 +117,10 @@ public class FraudDetection {
 
             // run the topology
             try {
-                if (ex_mode.equals("local"))
-                    runTopologyLocally(topology, topology_name, conf, 120); // 2 minutes
-                else if (ex_mode.equals("remote"))
-                    runTopologyRemotely(topology, topology_name, conf, 120);
+                if (ex_mode.equals(Execution.LOCAL_MODE))
+                    runTopologyLocally(topology, topology_name, conf, Execution.RUNTIME_SEC);
+                else if (ex_mode.equals(Execution.REMOTE_MODE))
+                    runTopologyRemotely(topology, topology_name, conf, Execution.RUNTIME_SEC);
             } catch (InterruptedException e) {
                 LOG.error("Interrupted topology.", e);
             }
@@ -123,36 +134,47 @@ public class FraudDetection {
      */
     private static void spoutsANDboltsFlinkAdaptation(String[] args) throws Exception {
         ParameterTool params = ParameterTool.fromArgs(args);
-        if (params.getNumberOfParameters() == 0) {
+        if (params.getNumberOfParameters() == 1 && params.get("help").equals(BaseConstants.HELP)) {
             String alert =
-                    "In order to correctly run FraudDetection app you need to pass the following arguments:\n" +
-                            " file path\n" +
-                            "Optional arguments:\n" +
-                            " source parallelism degree (default 1)\n" +
-                            " bolt parallelism degree (default 1)\n" +
-                            " sink parallelism degree (default 1)\n" +
-                            " source generation rate (default -1, generate at the max possible rate)\n" +
-                            " topology name (default FraudDetection)\n" +
-                            " execution mode (default local)";
+                    "In order to correctly run FraudDetection app you can pass the following (optional) arguments:\n" +
+                    "Optional arguments (default values are specified in fd.properties or defined as constants):\n" +
+                    " file path\n" +
+                    " source parallelism degree\n" +
+                    " bolt parallelism degree\n" +
+                    " sink parallelism degree\n" +
+                    " source generation rate (default -1, generate at the max possible rate)\n" +
+                    " topology name (default FraudDetection)\n" +
+                    " execution mode (default local)";
             LOG.error(alert);
         } else {
+            // load the configuration
+            String cfg = FraudDetectionConstants.DEFAULT_PROPERTIES;
+            ParameterTool conf = ParameterTool.fromPropertiesFile(FraudDetection.class.getResourceAsStream(cfg));
+
             // parse command line arguments
-            String file_path = params.getRequired("filepath");
-            int source_par_deg = params.getInt("nsource", 1);
-            int bolt_par_deg = params.getInt("nbolt", 1);
-            int sink_par_deg = params.getInt("nsink", 1);
-            int gen_rate = params.getInt("rate", -1);
-            String topology_name = params.get("toponame", "FraudDetection");
-            String ex_mode = params.get("mode", "local");
+            String file_path = params.get("filepath", conf.get(Conf.SPOUT_PATH));
+            int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
+            int bolt_par_deg = params.getInt("nbolt", conf.getInt(Conf.PREDICTOR_THREADS));
+            int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
+            // source generation rate (for tests)
+            int gen_rate = params.getInt("rate", Execution.DEFAULT_RATE);
+
+            String topology_name = params.get("toponame", FraudDetectionConstants.DEFAULT_TOPO_NAME);
+            String ex_mode = params.get("mode", Execution.LOCAL_MODE);
+
+            // create the execution environment
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-            env.getConfig().setGlobalJobParameters(params);
 
-            // set parallelism for all activities in the topology
-            int pardeg = params.getInt("pardeg", 1);
+            // add the configuration
+            env.getConfig().setGlobalJobParameters(params);
+            env.getConfig().setGlobalJobParameters(conf);
+
+            // set the parallelism degree for all activities in the topology
+            int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
             env.setParallelism(pardeg);
 
-            System.out.println("[main] Command line arguments parsed.");
+            System.out.println("[main] Command line arguments parsed and configuration set.");
 
             // create the topology
             DataStream<Tuple3<String, String, Long>> source =
@@ -160,7 +182,7 @@ public class FraudDetection {
                     .addSource(
                         new SpoutWrapper<Tuple3<String, String, Long>>(
                                 new FileParserSpout(file_path, ",", gen_rate, source_par_deg)),
-                                "file_parser")
+                                Component.SPOUT) // operator name
                         .returns(Types.TUPLE(Types.STRING, Types.STRING, Types.LONG))   // output type
                         //.setParallelism(source_par_deg)
                         .keyBy(0);
@@ -170,7 +192,7 @@ public class FraudDetection {
             DataStream<Tuple4<String, Double, String, Long>> fraud_predictor =
                 source
                     .transform(
-                        "fraud_predictor", // operator name
+                        Component.PREDICTOR, // operator name
                             TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
                             new BoltWrapper<>(new FraudPredictorBolt(bolt_par_deg)));
                         //.setParallelism(bolt_par_deg);
@@ -180,19 +202,14 @@ public class FraudDetection {
             DataStream<Tuple4<String, Double, String, Long>> sink =
                 fraud_predictor
                     .transform(
-                            "sink",
+                            Component.SINK, // operator name
                             TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
                             new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)));
                         //.setParallelism(sink_par_deg);
 
             System.out.println("[main] Sink created.");
 
-            // prepare the configuration
-            String cfg = "/frauddetection/fd.properties";
-            params = ParameterTool.fromPropertiesFile(FraudDetection.class.getResourceAsStream(cfg));
-            env.getConfig().setGlobalJobParameters(params);
-
-            System.out.println("[main] executing topology...");
+            System.out.println("[main] Executing topology...");
             env.execute(topology_name);
         }
     }
@@ -209,7 +226,7 @@ public class FraudDetection {
             throws InterruptedException {
 
         LOG.info("[main] Starting Flink in local mode to run for {} seconds.", runtime_seconds);
-        FlinkLocalCluster cluster = new FlinkLocalCluster();//FlinkLocalCluster.getLocalCluster();
+        FlinkLocalCluster cluster = new FlinkLocalCluster(); //FlinkLocalCluster.getLocalCluster();
 
         try {
             cluster.submitTopology(topology_name, conf, topology);

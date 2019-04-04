@@ -1,7 +1,7 @@
 package FraudDetection;
 
-import Constants.FraudDetectionConstants.Conf;
-import Constants.FraudDetectionConstants.Field;
+import Constants.BaseConstants.BaseField;
+import Constants.FraudDetectionConstants.*;
 import MarkovModelPrediction.MarkovModelPredictor;
 import MarkovModelPrediction.ModelBasedPredictor;
 import MarkovModelPrediction.Prediction;
@@ -24,8 +24,6 @@ import java.util.Map;
  * Given a transaction sequence of a customer, there is a
  * probability associated with each path of state transition,
  * which indicates the chances of fraudolent activities.
- *
- * @author Alessandra Fais
  */
 public class FraudPredictorBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(FraudPredictorBolt.class);
@@ -43,12 +41,11 @@ public class FraudPredictorBolt extends BaseRichBolt {
 
     FraudPredictorBolt(int p_deg) {
         par_deg = p_deg;     // bolt parallelism degree
-        System.out.println("[FraudPredictorBolt] Constructor invoked (" + par_deg + " replicas).");
     }
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[FraudPredictorBolt] Started.");
+        LOG.info("[FraudPredictorBolt] Started ({} replicas).", par_deg);
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
@@ -59,10 +56,8 @@ public class FraudPredictorBolt extends BaseRichBolt {
         collector = outputCollector;
 
         String strategy = config.getString(Conf.PREDICTOR_MODEL);
-        if (strategy.equals("mm")) {
-            LOG.info("[FraudPredictorBolt] Creating Markov Model Predictor.");
+        if (strategy.equals("mm"))
             predictor = new MarkovModelPredictor(config);
-        }
     }
 
     @Override
@@ -78,11 +73,8 @@ public class FraudPredictorBolt extends BaseRichBolt {
             outliers++;
             collector.emit(tuple,
                     new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), timestamp));
-
-            LOG.debug("[FraudPredictorBolt] Sending outlier: EntityID {} score {} states {}",
-                    entityID, p.getScore(), StringUtils.join(p.getStates(), ","));
         }
-        //collector.ack(tuple);
+        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
@@ -92,16 +84,16 @@ public class FraudPredictorBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        LOG.info("[FraudPredictorBolt] Processed {} tuples in {} ms (found {} outliers). " +
-                        "Source bandwidth is {} tuples per second.",
-                processed, t_elapsed, outliers,
-                (processed / (t_elapsed / 1000))); // tuples per second
-        System.out.println("[FraudPredictorBolt] Bandwidth is " + (processed / (t_elapsed / 1000)) + " tuples per second.");
+        System.out.println("[FraudPredictorBolt] Processed " +
+                processed + " tuples in " +
+                t_elapsed + " ms. Source bandwidth is " +
+                (processed / (t_elapsed / 1000)) +
+                " tuples per second.");
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(Field.ENTITY_ID, Field.SCORE, Field.STATES, Field.TIMESTAMP));
+        outputFieldsDeclarer.declare(new Fields(Field.ENTITY_ID, Field.SCORE, Field.STATES, BaseField.TIMESTAMP));
     }
 }
 
