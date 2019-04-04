@@ -13,8 +13,8 @@ From inside the root directory `FraudDetection/`
 ### Execution examples:
 * No argument is passed (all the nodes have parallelism degree equal to 1, the source generation rate is the maximum possible, the execution is local): <br> `flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
-* The parallelism degree is set to 4 for all the nodes in the topology and a specific file path is passed (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --filepath /data/app/fd/credit-card.dat --pardeg 4`
+* The parallelism degree is set to 4 for all the nodes in the topology and a specific file path is passed <br> (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --filepath /data/app/fd/credit-card.dat --pardeg 4`
 
 3. Stop Flink client: <br> `flink/bin/stop-cluster.sh`
 
-4. Check logs and output under `flink/log/` or see results from the Flink UI.
+4. Check logs and output under `flink/log/` or see results from the <b>Flink UI</b>.
