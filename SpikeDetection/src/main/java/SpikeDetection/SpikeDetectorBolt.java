@@ -1,5 +1,6 @@
 package SpikeDetection;
 
+import Constants.SpikeDetectionConstants;
 import Constants.SpikeDetectionConstants.Conf;
 import Constants.SpikeDetectionConstants.Field;
 import Util.config.Configuration;
@@ -15,6 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * Detects spikes in the measurements received by sensors
+ * using a properly defined threshold.
+ */
 public class SpikeDetectorBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverageBolt.class);
 
@@ -45,8 +50,7 @@ public class SpikeDetectorBolt extends BaseRichBolt {
         context = topologyContext;
         collector = outputCollector;
 
-        // the detection threshold of moving average values is set to 0.03.
-        spike_threshold = config.getDouble(Conf.SPIKE_DETECTOR_THRESHOLD, 0.03d);
+        spike_threshold = config.getDouble(Conf.SPIKE_DETECTOR_THRESHOLD, SpikeDetectionConstants.DEFAULT_THRESHOLD);
     }
 
     @Override
@@ -57,16 +61,10 @@ public class SpikeDetectorBolt extends BaseRichBolt {
         long timestamp = tuple.getLong(3);
 
         if (Math.abs(next_property_value - moving_avg_instant) > spike_threshold * moving_avg_instant) {
-            /*if (tuple.getSourceStreamId().equalsIgnoreCase(BaseStream.Marker_STREAM_ID)) {
-                collector.emit(
-                        BaseStream.Marker_STREAM_ID,
-                        new Values(deviceID, moving_avg_instant, next_property_value, "spike detected",
-                                tuple.getLongByField(BaseField.MSG_ID),
-                                tuple.getLongByField(BaseField.SYSTEMTIMESTAMP)));
-            }*/
             spikes++;
-            collector.emit(new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
+            collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
         }
+        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
@@ -76,10 +74,11 @@ public class SpikeDetectorBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        LOG.info("[SpikeDetectorBolt] Processed {} tuples in {} ms (detected {} spikes). " +
-                        "Source bandwidth is {} tuples per second.",
-                processed, t_elapsed, spikes,
-                processed / (t_elapsed / 1000));  // tuples per second
+        System.out.println("[SpikeDetectorBolt] Processed " +
+                processed + " tuples in " +
+                t_elapsed + " ms. Source bandwidth is " +
+                (processed / (t_elapsed / 1000)) +
+                " tuples per second.");
     }
 
 

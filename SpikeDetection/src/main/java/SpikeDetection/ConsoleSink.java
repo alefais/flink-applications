@@ -16,8 +16,6 @@ import java.util.Map;
 
 /**
  * The sink is in charge of printing the results.
- *
- * @author Alessandra Fais
  */
 public class ConsoleSink extends BaseRichBolt {
 
@@ -60,42 +58,38 @@ public class ConsoleSink extends BaseRichBolt {
         double next_property_value = tuple.getDouble(2);
         long timestamp = tuple.getLong(3);
 
-        processed++;
-        LOG.debug("[ConsoleSink] DeviceID {}, moving_avg {}, next {}.",
-                deviceID, moving_avg_instant, next_property_value);
-
         if (gen_rate != -1) {   // evaluate latency
             long now = System.nanoTime();
             long tuple_latency = (now - timestamp); // tuple latency in nanoseconds
             tuple_latencies.add(tuple_latency);
         }
+        collector.ack(tuple);
 
-        //collector.ack(tuple);
-
+        processed++;
         t_end = System.nanoTime();
     }
 
     @Override
     public void cleanup() {
         if (processed == 0) {
-            LOG.info("[ConsoleSink] No spike detected.");
+            System.out.println("[ConsoleSink] No spike detected.");
         } else {
             if (gen_rate == -1) {  // evaluate bandwidth
                 long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-                LOG.info("[ConsoleSink] Processed {} tuples in {} ms. " +
-                                "Bandwidth is {} tuples per second.",
-                        processed, t_elapsed,
-                        processed / (t_elapsed / 1000));  // tuples per second
+                System.out.println("[ConsoleSink] Processed " +
+                        processed + " tuples in " +
+                        t_elapsed + " ms. Bandwidth is " +
+                        (processed / (t_elapsed / 1000)) +
+                        " tuples per second.");
             } else {  // evaluate latency
                 long acc = 0L;
                 for (Long tl : tuple_latencies) {
                     acc += tl;
                 }
                 double avg_latency = (double) acc / tuple_latencies.size(); // average latency in nanoseconds
-                LOG.debug("[ConsoleSink] Processed tuples: {}. Timestamps registered: {}.", processed, tuple_latencies.size());
-                LOG.info("[ConsoleSink] Average latency: {} ms.", avg_latency / 1000000); // average latency in milliseconds
-                System.out.println("[ConsoleSink] Average latency is " + avg_latency / 1000000 + " ms.");
+
+                System.out.println("[ConsoleSink] Average latency is " + avg_latency / 1000000 + " ms."); // average latency in milliseconds
             }
         }
     }

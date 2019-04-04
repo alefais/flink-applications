@@ -21,8 +21,6 @@ import java.util.Map;
  * Calculates the average over a window for distinct elements.
  *
  * See http://github.com/surajwaghulde/storm-example-projects
- *
- * @author Alessandra Fais
  */
 public class MovingAverageBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverageBolt.class);
@@ -62,23 +60,14 @@ public class MovingAverageBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String deviceID = tuple.getString(0);
-        double next_property_value = tuple.getDouble(1);
-        long timestamp = tuple.getLong(2);
+        String deviceID = tuple.getStringByField(Field.DEVICE_ID);
+        double next_property_value = tuple.getDoubleByField(Field.VALUE);
+        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
 
         double moving_avg_instant = movingAverage(deviceID, next_property_value);
 
-        /*if (tuple.getSourceStreamId().equalsIgnoreCase(BaseConstants.BaseStream.Marker_STREAM_ID)) {
-            collector.emit(
-                    BaseConstants.BaseStream.Marker_STREAM_ID,
-                    new Values(deviceID, moving_avg_instant, next_property_value, "spike detected",
-                            tuple.getLongByField(BaseConstants.BaseField.MSG_ID),
-                            tuple.getLongByField(BaseConstants.BaseField.SYSTEMTIMESTAMP)));
-        } else*/
         collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
-
-        LOG.debug("[MovingAverageBolt] Sending: DeviceID {} avg {} next_value {}",
-                deviceID, moving_avg_instant, next_property_value);
+        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
@@ -88,12 +77,11 @@ public class MovingAverageBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        LOG.info("[MovingAverageBolt] Processed {} tuples in {} ms. " +
-                        "Source bandwidth is {} tuples per second.",
-                processed, t_elapsed,
-                processed / (t_elapsed / 1000));  // tuples per second
-
-        System.out.println("[MovingAverageBolt] Bandwidth is " + (processed / (t_elapsed / 1000)) + " tuples per second.");
+        System.out.println("[MovingAverageBolt] Processed " +
+                processed + " tuples in " +
+                t_elapsed + " ms. Source bandwidth is " +
+                (processed / (t_elapsed / 1000)) +
+                " tuples per second.");
     }
 
     @Override

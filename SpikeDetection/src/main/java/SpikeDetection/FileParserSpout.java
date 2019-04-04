@@ -25,11 +25,9 @@ import java.util.Scanner;
  * and generating the stream of records toward the MovingAverageBolt.
  *
  * Format of the input file:
- * date:yyyy-mm-dd	time:hh:mm:ss.xxx	epoch:int	deviceid:int	temperature:real	humidity:real	light:real	voltage:real
+ * date:yyyy-mm-dd	time:hh:mm:ss.xxx	epoch:int	deviceID:int	temperature:real	humidity:real	light:real	voltage:real
  *
  * Data example can be found here: http://db.csail.mit.edu/labdata/labdata.html
- *
- * @author Alessandra Fais
  */
 public class FileParserSpout extends BaseRichSpout {
 
@@ -48,10 +46,8 @@ public class FileParserSpout extends BaseRichSpout {
     private static final int LIGHT_FIELD = 6;
     private static final int VOLT_FIELD = 7;
 
-    /*
-        maps the property that the user wants to monitor (value from sd.properties:sd.parser.value_field)
-        to the corresponding field index
-     */
+    // maps the property that the user wants to monitor (value from sd.properties:sd.parser.value_field)
+    // to the corresponding field index
     private static final ImmutableMap<String, Integer> field_list = ImmutableMap.<String, Integer>builder()
             .put("temp", TEMP_FIELD)
             .put("humid", HUMID_FIELD)
@@ -192,13 +188,9 @@ public class FileParserSpout extends BaseRichSpout {
             } else {                // at the given rate
                 long t_now = System.nanoTime();
                 if (emitted >= rate) {
-                    LOG.info("[FileParserSpout] emitted {} VS rate {} in {} ms (delay: {} ns)",
-                            emitted, rate, (t_now - t_init) / 1000000, (double)interval / rate);
-
-                    if (t_now - t_init <= interval) {
-                        LOG.info("[FileParserSpout] waste {} ns.", interval - (t_now - t_init));
+                    if (t_now - t_init <= interval)
                         active_delay(interval - (t_now - t_init));
-                    }
+
                     emitted = 0;
                     t_init = System.nanoTime();
                     reset++;
@@ -217,12 +209,9 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        LOG.info("[FileParserSpout] Terminated after {} generations.", nt_execution);
-        LOG.info("[FileParserSpout] Generated {} tuples in {} ms. Emitted {} tuples in {} ms. " +
-                        "Source bandwidth is {} tuples per second.",
-                generated, t_elapsed,
-                emitted + (rate * reset), t_elapsed,
-                generated / (t_elapsed / 1000));  // tuples per second
+        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
+        System.out.println("[FileParserSpout] Bandwidth is " + (generated / (t_elapsed / 1000)) +
+                " tuples per second (generated " + generated + " tuples).");
     }
 
     @Override
