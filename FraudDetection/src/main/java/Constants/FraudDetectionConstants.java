@@ -1,11 +1,20 @@
 package Constants;
 
+/**
+ * Constants peculiar of the FraudDetection application.
+ */
 public interface FraudDetectionConstants extends BaseConstants {
-    String PREFIX = "fd";
     String DEFAULT_MODEL = "frauddetection/model.txt";
-    
-    interface Conf extends BaseConf {
+    String DEFAULT_PROPERTIES = "/frauddetection/fd.properties";
+    String DEFAULT_TOPO_NAME = "FraudDetection";
+
+    interface Conf {
+        String SPOUT_PATH = "fd.spout.path";
+        String SPOUT_THREADS = "fd.spout.threads";
+        String SINK_THREADS = "fd.sink.threads";
         String PREDICTOR_THREADS  = "fd.predictor.threads";
+        String ALL_THREADS = "fd.all.threads"; // useful only with Flink
+
         String PREDICTOR_MODEL    = "fd.predictor.model";
         String MARKOV_MODEL_KEY   = "fd.markov.model.key";
         String LOCAL_PREDICTOR    = "fd.local.predictor";

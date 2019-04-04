@@ -1,11 +1,16 @@
 package Constants;
 
+/**
+ * Constants useful for all the applications.
+ */
 public interface BaseConstants {
+    String HELP = "help";
 
-    interface BaseConf {
-        String SPOUT_THREADS = "%s.spout.threads";
-        String SPOUT_PATH = "%s.spout.path";
-        String SINK_THREADS = "%s.sink.threads";
+    interface Execution {
+        String LOCAL_MODE = "local";
+        String REMOTE_MODE = "remote";
+        int DEFAULT_RATE = -1;
+        int RUNTIME_SEC = 120;  // topology is alive for 120 seconds (valid for Storm)
     }
 
     interface BaseComponent {
