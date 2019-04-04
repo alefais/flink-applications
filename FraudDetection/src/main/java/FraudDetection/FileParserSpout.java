@@ -98,7 +98,7 @@ public class FileParserSpout extends BaseRichSpout {
 
         System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
         System.out.println("[FileParserSpout] Bandwidth is " + (generated / (t_elapsed / 1000)) +
-                " tuples per second (" + nt_execution + " generations).");
+                " tuples per second (generated " + generated + " tuples).");
     }
 
     @Override
