@@ -30,6 +30,7 @@ public interface TrafficMonitoringConstants extends BaseConstants {
         String MAP_MATCHER_THREADS = "tm.map_matcher.threads";
         String SPEED_CALCULATOR_THREADS = "tm.speed_calculator.threads";
         String SINK_THREADS = "tm.sink.threads";
+        String ALL_THREADS = "sd.all.threads"; // useful only with Flink
     }
     
     interface Component extends BaseComponent {
