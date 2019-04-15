@@ -114,11 +114,12 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        LOG.info("[FileParserSpout] Terminated after {} generations.", nt_execution);
-        LOG.info("[FileParserSpout] Emitted {} tuples in {} ms. " +
-                        "Source bandwidth is {} tuples per second.",
-                generated, t_elapsed,
-                generated / (t_elapsed / 1000));  // tuples per second
+        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
+        System.out.println("[FileParserSpout] Emitted " + generated +
+                            " tuples in " + t_elapsed + " ms. " +
+                            "Source bandwidth is " +
+                            generated / (t_elapsed / 1000) +
+                            " tuples per second.");
     }
 
     @Override
