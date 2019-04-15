@@ -104,12 +104,12 @@ public class MapMatchingBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String vehicleID = tuple.getStringByField(Field.VEHICLE_ID);
-        double latitude = tuple.getDoubleByField(Field.LATITUDE);
-        double longitude = tuple.getDoubleByField(Field.LONGITUDE);
-        int speed = tuple.getDoubleByField(Field.SPEED).intValue();
-        int bearing = tuple.getIntegerByField(Field.BEARING);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        String vehicleID = tuple.getString(0);
+        double latitude = tuple.getDouble(1);
+        double longitude = tuple.getDouble(2);
+        int speed = tuple.getDouble(3).intValue();
+        int bearing = tuple.getInteger(4);
+        long timestamp = tuple.getLong(5);
 
         LOG.debug("[MapMatchingBolt] Received: " +
                 vehicleID + " " +

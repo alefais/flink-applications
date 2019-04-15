@@ -54,9 +54,9 @@ public class SpeedCalculatorBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        int roadID = tuple.getIntegerByField(Field.ROAD_ID);
-        int speed  = tuple.getIntegerByField(Field.SPEED);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        int roadID = tuple.getInteger(0);
+        int speed  = tuple.getInteger(1);
+        long timestamp = tuple.getLong(2);
 
         LOG.debug("[SpeedCalculatorBolt] Received: " +
                 roadID + " " +

@@ -56,10 +56,10 @@ public class ConsoleSink extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        int roadID = tuple.getIntegerByField(Field.ROAD_ID);
-        int avg_speed = tuple.getIntegerByField(Field.AVG_SPEED);
-        int count = tuple.getIntegerByField(Field.COUNT);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        int roadID = tuple.getInteger(0);
+        int avg_speed = tuple.getInteger(1);
+        int count = tuple.getInteger(2);
+        long timestamp = tuple.getLong(3);
 
         LOG.debug("[ConsoleSink] Received: " +
                 roadID + " " +
