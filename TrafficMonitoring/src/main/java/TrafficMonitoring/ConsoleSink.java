@@ -44,7 +44,7 @@ public class ConsoleSink extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[ConsoleSink] Started ({} replicas).", par_deg);
+        System.out.println("[ConsoleSink] Started (" + par_deg + " replicas).");
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
@@ -81,14 +81,15 @@ public class ConsoleSink extends BaseRichBolt {
     @Override
     public void cleanup() {
         if (processed == 0) {
-            LOG.info("[ConsoleSink] No elements processed.");
+            System.out.println("[ConsoleSink] No elements processed.");
         } else {
             long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-            LOG.info("[ConsoleSink] Processed {} tuples in {} ms. " +
-                            "Bandwidth is {} tuples per second.",
-                    processed, t_elapsed,
-                    processed / (t_elapsed / 1000));  // tuples per second
+            System.out.println("[ConsoleSink] Processed " + processed +
+                                " tuples in " + t_elapsed + " ms. " +
+                                "Bandwidth is " +
+                                processed / (t_elapsed / 1000)
+                                + " tuples per second.");
 
             // evaluate average latency
             long acc = 0L;
@@ -97,7 +98,8 @@ public class ConsoleSink extends BaseRichBolt {
             }
             double avg_latency = (double) acc / tuple_latencies.size(); // average latency in nanoseconds
 
-            LOG.info("[ConsoleSink] Average latency: {} ms.", avg_latency / 1000000); // average latency in milliseconds
+            // average latency in milliseconds
+            System.out.println("[ConsoleSink] Average latency: " + avg_latency / 1000000 + " ms.");
         }
     }
 

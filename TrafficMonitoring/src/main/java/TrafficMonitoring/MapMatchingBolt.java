@@ -62,7 +62,7 @@ public class MapMatchingBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[MapMatchingBolt] Started ({} replicas).", par_deg);
+        System.out.println("[MapMatchingBolt] Started (" + par_deg + " replicas).");
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
@@ -153,10 +153,11 @@ public class MapMatchingBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        LOG.info("[MapMatchingBolt] Processed {} tuples in {} ms. " +
-                        "Source bandwidth is {} tuples per second.",
-                processed, t_elapsed,
-                processed / (t_elapsed / 1000));  // tuples per second
+        System.out.println("[MapMatchingBolt] Processed " + processed +
+                " tuples in " + t_elapsed + " ms. " +
+                "Bandwidth is " +
+                processed / (t_elapsed / 1000)
+                + " tuples per second.");
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("TMkeys_results.log"));
