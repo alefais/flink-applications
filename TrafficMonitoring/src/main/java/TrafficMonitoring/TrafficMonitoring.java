@@ -71,8 +71,8 @@ public class TrafficMonitoring {
             else
                 city = conf.get(Conf.MAP_MATCHER_SHAPEFILE);
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt1_par_deg = params.getInt("nbolt", conf.getInt(Conf.MAP_MATCHER_THREADS));
-            int bolt2_par_deg = params.getInt("nbolt", conf.getInt(Conf.SPEED_CALCULATOR_THREADS));
+            int bolt1_par_deg = params.getInt("nbolt1", conf.getInt(Conf.MAP_MATCHER_THREADS));
+            int bolt2_par_deg = params.getInt("nbolt2", conf.getInt(Conf.SPEED_CALCULATOR_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
