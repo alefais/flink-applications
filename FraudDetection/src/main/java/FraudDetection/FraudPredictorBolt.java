@@ -56,8 +56,10 @@ public class FraudPredictorBolt extends BaseRichBolt {
         collector = outputCollector;
 
         String strategy = config.getString(Conf.PREDICTOR_MODEL);
-        if (strategy.equals("mm"))
+        if (strategy.equals("mm")) {
+            LOG.debug("[FraudPredictorBolt] Creating Markov Model Predictor.");
             predictor = new MarkovModelPredictor(config);
+        }
     }
 
     @Override
@@ -73,6 +75,9 @@ public class FraudPredictorBolt extends BaseRichBolt {
             outliers++;
             collector.emit(tuple,
                     new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), timestamp));
+
+            LOG.debug("[FraudPredictorBolt] Sending outlier: EntityID {} score {} states {}",
+                    entityID, p.getScore(), StringUtils.join(p.getStates(), ","));
         }
         collector.ack(tuple);
 
@@ -96,4 +101,3 @@ public class FraudPredictorBolt extends BaseRichBolt {
         outputFieldsDeclarer.declare(new Fields(Field.ENTITY_ID, Field.SCORE, Field.STATES, BaseField.TIMESTAMP));
     }
 }
-

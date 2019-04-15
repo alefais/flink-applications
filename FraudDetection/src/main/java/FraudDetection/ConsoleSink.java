@@ -59,6 +59,8 @@ public class ConsoleSink extends BaseRichBolt {
         String states = tuple.getString(2);
         Long timestamp = tuple.getLong(3);
 
+        LOG.debug("[ConsoleSink] EntityID {}, score {}, states {}.", entityID, score, states);
+
         if (gen_rate != -1) {   // evaluate latency
             Long now = System.nanoTime();
             Long tuple_latency = (now - timestamp); // tuple latency in nanoseconds
@@ -100,3 +102,4 @@ public class ConsoleSink extends BaseRichBolt {
         outputFieldsDeclarer.declare(new Fields(Field.ENTITY_ID, Field.SCORE, Field.STATES, BaseField.TIMESTAMP));
     }
 }
+
