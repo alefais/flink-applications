@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpikeDetection {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileParserSpout.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpikeDetection.class);
 
     /**
      * Embed Storm operators in the Flink streaming program.
@@ -55,8 +55,8 @@ public class SpikeDetection {
             // parse command line arguments
             String file_path = params.get("filepath", conf.get(Conf.SPOUT_PATH));
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt1_par_deg = params.getInt("nbolt", conf.getInt(Conf.MOVING_AVERAGE_THREADS));
-            int bolt2_par_deg = params.getInt("nbolt", conf.getInt(Conf.SPIKE_DETECTOR_THREADS));
+            int bolt1_par_deg = params.getInt("nbolt1", conf.getInt(Conf.MOVING_AVERAGE_THREADS));
+            int bolt2_par_deg = params.getInt("nbolt2", conf.getInt(Conf.SPIKE_DETECTOR_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
@@ -81,13 +81,13 @@ public class SpikeDetection {
             // create the topology
             DataStream<Tuple3<String, Double, Long>> source =
                     env
-                            .addSource(
-                                    new SpoutWrapper<Tuple3<String, Double, Long>>(
-                                            new FileParserSpout(file_path, gen_rate, source_par_deg)),
-                                    Component.SPOUT) // operator name
-                            .returns(Types.TUPLE(Types.STRING, Types.DOUBLE, Types.LONG))   // output type
-                            //.setParallelism(source_par_deg)
-                            .keyBy(0);
+                        .addSource(
+                                new SpoutWrapper<Tuple3<String, Double, Long>>(
+                                        new FileParserSpout(file_path, gen_rate, source_par_deg)),
+                                Component.SPOUT) // operator name
+                        .returns(Types.TUPLE(Types.STRING, Types.DOUBLE, Types.LONG))   // output type
+                        //.setParallelism(source_par_deg)
+                        .keyBy(0);
 
             System.out.println("[main] Spout created.");
 
