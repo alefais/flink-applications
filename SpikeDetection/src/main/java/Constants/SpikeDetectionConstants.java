@@ -18,6 +18,7 @@ public interface SpikeDetectionConstants extends BaseConstants {
         String MOVING_AVERAGE_THREADS = "sd.moving_average.threads";
         String SPIKE_DETECTOR_THREADS = "sd.spike_detector.threads";
         String SINK_THREADS = "sd.sink.threads";
+        String ALL_THREADS = "sd.all.threads"; // useful only with Flink
     }
     
     interface Component extends BaseComponent {
