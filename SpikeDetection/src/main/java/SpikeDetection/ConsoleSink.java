@@ -58,6 +58,9 @@ public class ConsoleSink extends BaseRichBolt {
         double next_property_value = tuple.getDouble(2);
         long timestamp = tuple.getLong(3);
 
+        LOG.debug("[ConsoleSink] DeviceID {}, moving_avg {}, next {}.",
+                deviceID, moving_avg_instant, next_property_value);
+
         if (gen_rate != -1) {   // evaluate latency
             long now = System.nanoTime();
             long tuple_latency = (now - timestamp); // tuple latency in nanoseconds
@@ -99,3 +102,4 @@ public class ConsoleSink extends BaseRichBolt {
         outputFieldsDeclarer.declare(new Fields(Field.DEVICE_ID, Field.MOVING_AVG, Field.VALUE, Field.TIMESTAMP));
     }
 }
+

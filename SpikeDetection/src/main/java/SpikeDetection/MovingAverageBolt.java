@@ -60,14 +60,17 @@ public class MovingAverageBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String deviceID = tuple.getStringByField(Field.DEVICE_ID);
-        double next_property_value = tuple.getDoubleByField(Field.VALUE);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        String deviceID = tuple.getString(0);
+        double next_property_value = tuple.getDouble(1);
+        long timestamp = tuple.getLong(2);
 
         double moving_avg_instant = movingAverage(deviceID, next_property_value);
 
         collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
         collector.ack(tuple);
+
+        LOG.debug("[MovingAverageBolt] Sending: DeviceID {} avg {} next_value {}",
+                deviceID, moving_avg_instant, next_property_value);
 
         processed++;
         t_end = System.nanoTime();
@@ -88,6 +91,8 @@ public class MovingAverageBolt extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declare(new Fields(Field.DEVICE_ID, Field.MOVING_AVG, Field.VALUE, Field.TIMESTAMP));
     }
+
+    //------------------------------ private methods ---------------------------
 
     private double movingAverage(String deviceID, double nextDouble) {
         LinkedList<Double> valueList = new LinkedList<>();
