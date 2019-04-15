@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FraudDetection {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileParserSpout.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FraudDetection.class);
 
     /**
      * Embed Storm operators in the Flink streaming program.
