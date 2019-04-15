@@ -4,6 +4,6 @@ This repository contains a collection of applications implemented for [Storm](ht
 
 Applications can be run in local mode, further information can be found in each application README and in the [official documentation](https://ci.apache.org/projects/flink/flink-docs-release-1.7/tutorials/local_setup.html).
 
-The code is derived from the following works:
+This work is an adaptation and derives from:
 * https://github.com/ShuhaoZhangTony/briskstream
 * https://github.com/mayconbordin/storm-applications
