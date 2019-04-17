@@ -15,7 +15,7 @@ From inside the root directory `WordCount/`
 
 * The parallelism degree is explicitly set to 4 for all the nodes in the topology, the source type is `file` and a specific file path is passed <br> (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c WordCount.WordCount target/WordCount-1.0-SNAPSHOT-jar-with-dependencies.jar --sourcetype file --filepath ../data/app/wc/books.dat --pardeg 4`
 
-* The parallelism degree is explicitly set to 4 for all the nodes in the topology and the source type is `generator` <br> (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c WordCount.WordCount target/WordCount-1.0-SNAPSHOT-jar-with-dependencies.jar --sourcetype generator --pardeg 4`
+* The parallelism degree is explicitly set to 4 for all the nodes in the topology, the source type is `generator` and the generation rate is set to 10000  <br> (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `flink run -c WordCount.WordCount target/WordCount-1.0-SNAPSHOT-jar-with-dependencies.jar --sourcetype generator --pardeg 4`
 
 3. Stop Flink client: <br> `flink/bin/stop-cluster.sh`
 
