@@ -61,14 +61,14 @@ public class FileParserSpout extends BaseRichSpout {
     FileParserSpout(String source_type, String file, int gen_rate, int p_deg) {
         type = source_type;
         file_path = file;
-        rate = gen_rate;        // number of tuples per second
-        par_deg = p_deg;        // spout parallelism degree
-        generated = 0;          // total number of generated tuples
-        emitted = 0;            // total number of emitted tuples
-        nt_execution = 0;       // number of executions of nextTuple() method
+        rate = gen_rate * 1048576;  // number of bytes per second
+        par_deg = p_deg;            // spout parallelism degree
+        generated = 0;              // total number of generated tuples
+        emitted = 0;                // number of emitted data measured in bytes
+        nt_execution = 0;           // number of executions of nextTuple() method
 
         lines = new ArrayList<>();
-        bytes = 0;              // total number of bytes emitted
+        bytes = 0;                  // total number of bytes emitted
     }
 
     @Override
@@ -109,7 +109,7 @@ public class FileParserSpout extends BaseRichSpout {
                 }
                 collector.emit(new Values(lines.get(i), System.nanoTime()));
                 bytes += lines.get(i).length();
-                emitted++;
+                emitted += lines.get(i).length();
                 generated++;
                 active_delay((double) interval / rate);
             }
@@ -122,7 +122,8 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
+        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations." +
+                "(generated " + generated + " lines, for a total amount of " + (bytes / 1048576) + " MB)");
         System.out.println("[FileParserSpout] Source bandwidth is " +
                         (bytes / 1048576) / (t_elapsed / 1000) +  // express bytes/s in MB/s
                         " MB per second.");
