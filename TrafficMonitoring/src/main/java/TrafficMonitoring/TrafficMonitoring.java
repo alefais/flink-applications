@@ -66,7 +66,7 @@ public class TrafficMonitoring {
             // parse command line arguments
             // if city is not a valid string then take the default value from properties file
             String city;
-            if (params.get("city").equals(City.BEIJING) || params.get("city").equals(City.DUBLIN))
+            if (params.get("city") != null && (params.get("city").equals(City.BEIJING) || params.get("city").equals(City.DUBLIN)))
                 city = params.get("city");
             else
                 city = conf.get(Conf.MAP_MATCHER_SHAPEFILE);
