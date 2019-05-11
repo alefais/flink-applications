@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version April 2019
+ *  @version May 2019
  *
  *  Sink node that receives and prints the results.
  */
