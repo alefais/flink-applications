@@ -18,11 +18,14 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * The spout is in charge of reading the input data file, parsing it
- * and generating the stream of records toward the FraudPredictorBolt.
+ *  @author Alessandra Fais
+ *  @version May 2019
  *
- * Format of the input file:
- * entityID, transactionID, transactionType
+ *  The spout is in charge of reading the input data file, parsing it
+ *  and generating the stream of records toward the FraudPredictorBolt.
+ *
+ *  Format of the input file:
+ *  <entityID, transactionID, transactionType>
  */
 public class FileParserSpout extends BaseRichSpout {
 
@@ -76,7 +79,7 @@ public class FileParserSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-        LOG.info("[FileParserSpout] Started ({} replicas with rate {}).", par_deg, rate);
+        LOG.info("[Source] started ({} replicas with rate {})", par_deg, rate);
 
         t_start = System.nanoTime(); // spout start time in nanoseconds
 
@@ -89,8 +92,8 @@ public class FileParserSpout extends BaseRichSpout {
     }
 
     /**
-     * The method is called in an infinite loop by design, this means that the
-     * stream is continuously generated from the data source file.
+     * The method is called in an infinite loop by design, this means that the stream is
+     * continuously generated from the data source file, until the topology is killed.
      */
     @Override
     public void nextTuple() {
@@ -123,12 +126,11 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
-        System.out.println("[FileParserSpout] Bandwidth is " +
-                (generated / (t_elapsed / 1000)) +
-                " tuples per second (generated " +
-                generated + " tuples in " +
-                t_elapsed + "ms).");
+        System.out.println("[Source] execution time: " + t_elapsed +
+                           " ms, generations: " + nt_execution +
+                           ", generated: " + generated +
+                           ", bandwidth: " + generated / (t_elapsed / 1000) +  // tuples per second
+                           " tuples/s");
     }
 
     @Override
@@ -153,10 +155,10 @@ public class FileParserSpout extends BaseRichSpout {
                 records.add(line[1]);
                 generated++;
 
-                LOG.debug("[FileParserSpout] EntityID: {} Record: {}", line[0], line[1]);
+                LOG.debug("[Source] tuple: entityID " + line[0] + ", record " + line[1]);
             }
             scan.close();
-            LOG.info("[FileParserSpout] Parsed dataset: generated {} tuples.", generated);
+            LOG.info("[Source] parsed dataset: " + generated + " tuples");
             generated = 0;
         } catch (FileNotFoundException | NullPointerException e) {
             LOG.error("The file {} does not exists", file_path);
@@ -177,6 +179,6 @@ public class FileParserSpout extends BaseRichSpout {
             t_now = System.nanoTime();
             end = (t_now - t_start) >= nsecs;
         }
-        LOG.debug("[FileParserSpout] delay {} ns.", nsecs);
+        LOG.debug("[Source] delay " + nsecs + " ns.");
     }
 }

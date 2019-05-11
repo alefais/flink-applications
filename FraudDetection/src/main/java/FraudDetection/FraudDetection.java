@@ -18,20 +18,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The topology entry class. The Storm compatible API is used in order to submit
- * a Storm topology to Flink. The used Storm classes are replaced with their
- * Flink counterparts in the Storm client code that assembles the topology.
+ *  @author Alessandra Fais
+ *  @version May 2019
  *
- * See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
+ *  The topology entry class. The Storm compatible API is used in order to submit
+ *  a Storm topology to Flink. The used Storm classes are replaced with their
+ *  Flink counterparts in the Storm client code that assembles the topology.
+ *
+ *  See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
  */
 public class FraudDetection {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudDetection.class);
 
     /**
-     * Embed Storm operators in the Flink streaming program.
-     * @param args command line arguments
-     * @throws Exception
+     *  Embed Storm operators in the Flink streaming program.
+     *  @param args command line arguments
+     *  @throws Exception
      */
     public static void main(String[] args) throws Exception {
         ParameterTool params = ParameterTool.fromArgs(args);
@@ -72,8 +75,8 @@ public class FraudDetection {
             env.getConfig().setGlobalJobParameters(conf);
 
             // set the parallelism degree for all activities in the topology
-            int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
-            env.setParallelism(pardeg);
+            //int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
+            //env.setParallelism(pardeg);
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
 
@@ -83,10 +86,10 @@ public class FraudDetection {
                     .addSource(
                         new SpoutWrapper<Tuple3<String, String, Long>>(
                                 new FileParserSpout(file_path, ",", gen_rate, source_par_deg)),
-                                Component.SPOUT) // operator name
-                        .returns(Types.TUPLE(Types.STRING, Types.STRING, Types.LONG))   // output type
-                        //.setParallelism(source_par_deg)
-                        .keyBy(0);
+                        Component.SPOUT) // operator name
+                    .returns(Types.TUPLE(Types.STRING, Types.STRING, Types.LONG))   // output type
+                    .setParallelism(source_par_deg)
+                    .keyBy(0);
 
             System.out.println("[main] Spout created.");
 
@@ -94,19 +97,19 @@ public class FraudDetection {
                 source
                     .transform(
                         Component.PREDICTOR, // operator name
-                            TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
-                            new BoltWrapper<>(new FraudPredictorBolt(bolt_par_deg)));
-                        //.setParallelism(bolt_par_deg);
+                        TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
+                        new BoltWrapper<>(new FraudPredictorBolt(bolt_par_deg)))
+                    .setParallelism(bolt_par_deg);
 
             System.out.println("[main] Bolt created.");
 
             DataStream<Tuple4<String, Double, String, Long>> sink =
                 fraud_predictor
                     .transform(
-                            Component.SINK, // operator name
-                            TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
-                            new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)));
-                        //.setParallelism(sink_par_deg);
+                        Component.SINK, // operator name
+                        TypeExtractor.getForObject(new Tuple4<>("", 0.0, "", 0L)), // output type
+                        new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)))
+                    .setParallelism(sink_par_deg);
 
             System.out.println("[main] Sink created.");
 

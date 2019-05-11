@@ -1,7 +1,10 @@
 package Constants;
 
 /**
- * Constants peculiar of the FraudDetection application.
+ *  @author  Alessandra Fais
+ *  @version May 2019
+ *
+ *  Constants peculiar of the FraudDetection application.
  */
 public interface FraudDetectionConstants extends BaseConstants {
     String DEFAULT_MODEL = "frauddetection/model.txt";
