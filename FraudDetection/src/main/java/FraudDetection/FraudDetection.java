@@ -75,7 +75,12 @@ public class FraudDetection {
             env.getConfig().setGlobalJobParameters(conf);
 
             // set the parallelism degree for all activities in the topology
-            //int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
+            int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
+            if (pardeg != conf.getInt(Conf.ALL_THREADS)) {
+                source_par_deg = pardeg;
+                bolt_par_deg = pardeg;
+                sink_par_deg = pardeg;
+            }
             //env.setParallelism(pardeg);
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
