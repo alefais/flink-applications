@@ -56,9 +56,9 @@ public class FraudDetection {
             ParameterTool conf = ParameterTool.fromPropertiesFile(FraudDetection.class.getResourceAsStream(cfg));
 
             // parse command line arguments
-            String file_path = params.get("filepath", conf.get(Conf.SPOUT_PATH));
+            String file_path = params.get("file", conf.get(Conf.SPOUT_PATH));
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt_par_deg = params.getInt("nbolt", conf.getInt(Conf.PREDICTOR_THREADS));
+            int bolt_par_deg = params.getInt("npredictor", conf.getInt(Conf.PREDICTOR_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
@@ -75,7 +75,12 @@ public class FraudDetection {
             env.getConfig().setGlobalJobParameters(conf);
 
             // set the parallelism degree for all activities in the topology
-            //int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
+            int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
+            if (pardeg != conf.getInt(Conf.ALL_THREADS)) {
+                source_par_deg = pardeg;
+                bolt_par_deg = pardeg;
+                sink_par_deg = pardeg;
+            }
             //env.setParallelism(pardeg);
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
