@@ -18,9 +18,13 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Calculates the average over a window for distinct elements.
+ *  @author Alessandra Fais
+ *  @version May 2019
  *
- * See http://github.com/surajwaghulde/storm-example-projects
+ *  The bolt is in charge of computing the average over a window of values.
+ *  It manages one window for each device_id.
+ *
+ *  See http://github.com/surajwaghulde/storm-example-projects
  */
 public class MovingAverageBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverageBolt.class);
@@ -44,7 +48,7 @@ public class MovingAverageBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[MovingAverageBolt] Started ({} replicas).", par_deg);
+        LOG.info("[Average] started ({} replicas)", par_deg);
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
@@ -69,8 +73,10 @@ public class MovingAverageBolt extends BaseRichBolt {
         collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
         collector.ack(tuple);
 
-        LOG.debug("[MovingAverageBolt] Sending: DeviceID {} avg {} next_value {}",
-                deviceID, moving_avg_instant, next_property_value);
+        LOG.debug("[Average] tuple: deviceID " + deviceID +
+                        ", incremental_average " + moving_avg_instant +
+                        ", next_value " + next_property_value
+                        ", ts " + timestamp);
 
         processed++;
         t_end = System.nanoTime();
@@ -80,11 +86,10 @@ public class MovingAverageBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        System.out.println("[MovingAverageBolt] Processed " +
-                processed + " tuples in " +
-                t_elapsed + " ms. Source bandwidth is " +
-                (processed / (t_elapsed / 1000)) +
-                " tuples per second.");
+        LOG.info("[Predictor] execution time: " + t_elapsed +
+                " ms, processed: " + processed +
+                ", bandwidth: " + processed / (t_elapsed / 1000) +  // tuples per second
+                " tuples/s");
     }
 
     @Override
@@ -94,6 +99,9 @@ public class MovingAverageBolt extends BaseRichBolt {
 
     //------------------------------ private methods ---------------------------
 
+    /**
+     * @author mayconbordin
+     */
     private double movingAverage(String deviceID, double nextDouble) {
         LinkedList<Double> valueList = new LinkedList<>();
         double sum = 0.0;

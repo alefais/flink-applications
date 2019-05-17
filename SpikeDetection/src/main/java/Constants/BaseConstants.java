@@ -1,7 +1,10 @@
 package Constants;
 
 /**
- * Constants set for all the applications.
+ *  @author  Alessandra Fais
+ *  @version May 2019
+ *
+ *  Constants set for all applications.
  */
 public interface BaseConstants {
     String HELP = "help";

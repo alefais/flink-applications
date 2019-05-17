@@ -21,14 +21,17 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * The spout is in charge of reading the input data file containing
- * measurements from a set of sensor devices, parsing it
- * and generating the stream of records toward the MovingAverageBolt.
+ *  @author Alessandra Fais
+ *  @version May 2019
  *
- * Format of the input file:
- * date:yyyy-mm-dd	time:hh:mm:ss.xxx	epoch:int	deviceID:int	temperature:real	humidity:real	light:real	voltage:real
+ *  The spout is in charge of reading the input data file containing
+ *  measurements from a set of sensor devices, parsing it
+ *  and generating the stream of records toward the MovingAverageBolt.
  *
- * Data example can be found here: http://db.csail.mit.edu/labdata/labdata.html
+ *  Format of the input file:
+ *  <date:yyyy-mm-dd, time:hh:mm:ss.xxx, epoch:int, deviceID:int, temperature:real, humidity:real, light:real, voltage:real>
+ *
+ *  Data example can be found here: http://db.csail.mit.edu/labdata/labdata.html
  */
 public class FileParserSpout extends BaseRichSpout {
 
@@ -100,7 +103,7 @@ public class FileParserSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-        LOG.info("[FileParserSpout] Started ({} replicas with rate {}).", par_deg, rate);
+        LOG.info("[Source] started ({} replicas with rate {})", par_deg, rate);
 
         t_start = System.nanoTime(); // spout start time in nanoseconds
 
@@ -161,11 +164,11 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
-        System.out.println("[FileParserSpout] Bandwidth is " +
-                (generated / (t_elapsed / 1000)) +
-                " tuples per second (generated " + generated +
-                " tuples in " + t_elapsed + "ms).");
+        System.out.println("[Source] execution time: " + t_elapsed +
+                            " ms, generations: " + nt_execution +
+                            ", generated: " + generated +
+                            ", bandwidth: " + generated / (t_elapsed / 1000) +  // tuples per second
+                            " tuples/s");
     }
 
     @Override
@@ -207,22 +210,22 @@ public class FileParserSpout extends BaseRichSpout {
                     voltage.add(new Double(fields[DatasetParsing.VOLT_FIELD]));
                     generated++;
 
-                    LOG.debug("[FileParserSpout] DeviceID: {} Request property: {} {}",
-                            fields[DatasetParsing.DEVICEID_FIELD], value_field, fields[value_field_key]);
-                    LOG.debug("[FileParserSpout] Fields: {} {} {} {} {} {} {} {}",
-                            fields[DatasetParsing.DATE_FIELD],
-                            fields[DatasetParsing.TIME_FIELD],
-                            fields[DatasetParsing.EPOCH_FIELD],
-                            fields[DatasetParsing.DEVICEID_FIELD],
-                            fields[DatasetParsing.TEMP_FIELD],
-                            fields[DatasetParsing.HUMID_FIELD],
-                            fields[DatasetParsing.LIGHT_FIELD],
+                    LOG.debug("[Source] tuple: deviceID " + fields[DatasetParsing.DEVICEID_FIELD] +
+                            ", property " + value_field + " " + fields[value_field_key]);
+                    LOG.debug("[Source] fields: " +
+                                    fields[DatasetParsing.DATE_FIELD] + " "
+                            fields[DatasetParsing.TIME_FIELD] + " "
+                            fields[DatasetParsing.EPOCH_FIELD] + " "
+                            fields[DatasetParsing.DEVICEID_FIELD] + " "
+                            fields[DatasetParsing.TEMP_FIELD] + " "
+                            fields[DatasetParsing.HUMID_FIELD] + " "
+                            fields[DatasetParsing.LIGHT_FIELD] + " "
                             fields[DatasetParsing.VOLT_FIELD]);
                 } else
-                    LOG.debug("[FileParserSpout] Incomplete record.");
+                    LOG.debug("[Source] incomplete record");
             }
             scan.close();
-            LOG.info("[FileParserSpout] Parsed dataset: generated {} tuples.", generated);
+            LOG.info("[Source] parsed dataset: " + generated + " tuples");
             generated = 0;
         } catch (FileNotFoundException | NullPointerException e) {
             LOG.error("The file {} does not exists", file_path);
@@ -243,6 +246,6 @@ public class FileParserSpout extends BaseRichSpout {
             t_now = System.nanoTime();
             end = (t_now - t_start) >= nsecs;
         }
-        LOG.debug("[FileParserSpout] delay {} ns.", nsecs);
+        LOG.debug("[Source] delay " + nsecs + " ns.");
     }
 }

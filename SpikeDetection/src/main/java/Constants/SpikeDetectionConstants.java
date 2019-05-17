@@ -1,7 +1,10 @@
 package Constants;
 
 /**
- * Constants peculiar of the SpikeDetection application.
+ *  @author  Alessandra Fais
+ *  @version May 2019
+ *
+ *  Constants peculiar of the SpikeDetection application.
  */
 public interface SpikeDetectionConstants extends BaseConstants {
     String DEFAULT_PROPERTIES = "/spikedetection/sd.properties";

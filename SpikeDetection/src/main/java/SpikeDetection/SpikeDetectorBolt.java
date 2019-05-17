@@ -17,8 +17,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * Detects spikes in the measurements received by sensors
- * using a properly defined threshold.
+ *  @author Alessandra Fais
+ *  @version May 2019
+ *
+ *  The bolt is in charge of detecting spikes in the measurements received by sensors
+ *  with respect to a properly defined threshold.
  */
 public class SpikeDetectorBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverageBolt.class);
@@ -40,7 +43,7 @@ public class SpikeDetectorBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[SpikeDetectorBolt] Started ({} replicas).", par_deg);
+        LOG.info("[Detector] started ({} replicas)", par_deg);
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
@@ -60,6 +63,11 @@ public class SpikeDetectorBolt extends BaseRichBolt {
         double next_property_value = tuple.getDouble(2);
         long timestamp = tuple.getLong(3);
 
+        LOG.debug("[Detector] tuple: deviceID " + deviceID +
+                    ", incremental_average " + moving_avg_instant +
+                    ", next_value " + next_property_value
+                    ", ts " + timestamp);
+
         if (Math.abs(next_property_value - moving_avg_instant) > spike_threshold * moving_avg_instant) {
             spikes++;
             collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
@@ -74,13 +82,12 @@ public class SpikeDetectorBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        System.out.println("[SpikeDetectorBolt] Processed " +
-                processed + " tuples in " +
-                t_elapsed + " ms. Source bandwidth is " +
-                (processed / (t_elapsed / 1000)) +
-                " tuples per second.");
+        System.out.println("[Detector] execution time: " + t_elapsed +
+                            " ms, processed: " + processed +
+                            ", spikes: " + spikes +
+                            ", bandwidth: " + processed / (t_elapsed / 1000) +  // tuples per second
+                            " tuples/s");
     }
-
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
