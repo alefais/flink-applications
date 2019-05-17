@@ -86,10 +86,10 @@ public class MovingAverageBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        LOG.info("[Predictor] execution time: " + t_elapsed +
-                " ms, processed: " + processed +
-                ", bandwidth: " + processed / (t_elapsed / 1000) +  // tuples per second
-                " tuples/s");
+        System.out.println("[Average] execution time: " + t_elapsed +
+                            " ms, processed: " + processed +
+                            ", bandwidth: " + processed / (t_elapsed / 1000) +  // tuples per second
+                            " tuples/s");
     }
 
     @Override
