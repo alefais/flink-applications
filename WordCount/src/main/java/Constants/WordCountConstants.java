@@ -1,7 +1,10 @@
 package Constants;
 
 /**
- * Constants peculiar of the WordCount application.
+ *  @author  Alessandra Fais
+ *  @version July 2019
+ *
+ *  Constants peculiar of the WordCount application.
  */
 public interface WordCountConstants extends BaseConstants {
     String DEFAULT_PROPERTIES = "/wordcount/wc.properties";
@@ -17,12 +20,12 @@ public interface WordCountConstants extends BaseConstants {
         String SINK_THREADS = "wc.sink.threads";
         String ALL_THREADS = "wc.all.threads"; // useful only with Flink
     }
-    
+
     interface Component extends BaseComponent {
         String SPLITTER = "splitter";
         String COUNTER = "counter";
     }
-    
+
     interface Field extends BaseField {
         String LINE = "line";
         String WORD = "word";
