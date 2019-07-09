@@ -54,8 +54,8 @@ public class SplitterBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String line = tuple.getStringByField(Field.LINE);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        String line = tuple.getString(0);       // Field.LINE
+        long timestamp = tuple.getLong(1);      // Field.TIMESTAMP
 
         if (line != null) {
             LOG.debug("[Splitter] Received line `" + line + "`");

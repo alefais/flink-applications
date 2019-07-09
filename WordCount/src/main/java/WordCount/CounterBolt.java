@@ -55,8 +55,8 @@ public class CounterBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String word = tuple.getStringByField(Field.WORD);
-        long timestamp = tuple.getLongByField(Field.TIMESTAMP);
+        String word = tuple.getString(0);     // Field.WORD
+        long timestamp = tuple.getLong(1);    // Field.TIMESTAMP
 
         if (word != null) {
             bytes += word.getBytes().length;
