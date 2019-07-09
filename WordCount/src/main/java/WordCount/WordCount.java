@@ -5,37 +5,27 @@ import Constants.BaseConstants.Execution;
 import Constants.WordCountConstants;
 import Constants.WordCountConstants.Component;
 import Constants.WordCountConstants.Conf;
-import Constants.WordCountConstants.Field;
-import Util.config.Configuration;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.storm.wrappers.BoltWrapper;
 import org.apache.flink.storm.wrappers.SpoutWrapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.storm.Config;
-import org.apache.storm.LocalCluster;
-import org.apache.storm.StormSubmitter;
-import org.apache.storm.generated.AlreadyAliveException;
-import org.apache.storm.generated.AuthorizationException;
-import org.apache.storm.generated.InvalidTopologyException;
-import org.apache.storm.generated.StormTopology;
-import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 /**
- * The topology entry class.
+ *  @author  Alessandra Fais
+ *  @version July 2019
+ *
+ *  The topology entry class. The Storm compatible API is used in order to submit
+ *  a Storm topology to Flink. The used Storm classes are replaced with their
+ *  Flink counterparts in the Storm client code that assembles the topology.
+ *
+ *  See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
  */
 public class WordCount {
 
@@ -73,8 +63,8 @@ public class WordCount {
             if (source_type.equals(Conf.FILE_SOURCE))
                 file_path = params.get("filepath", conf.get(Conf.SPOUT_PATH));
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt1_par_deg = params.getInt("nbolt1", conf.getInt(Conf.SPLITTER_THREADS));
-            int bolt2_par_deg = params.getInt("nbolt2", conf.getInt(Conf.COUNTER_THREADS));
+            int splitter_par_deg = params.getInt("nsplitter", conf.getInt(Conf.SPLITTER_THREADS));
+            int counter_par_deg = params.getInt("ncounter", conf.getInt(Conf.COUNTER_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
@@ -92,54 +82,70 @@ public class WordCount {
 
             // set the parallelism degree for all activities in the topology
             int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
-            env.setParallelism(pardeg);
+            if (pardeg != conf.getInt(Conf.ALL_THREADS)) {
+                source_par_deg = pardeg;
+                splitter_par_deg = pardeg;
+                counter_par_deg = pardeg;
+                sink_par_deg = pardeg;
+            }
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
 
             // create the topology
             DataStream<Tuple2<String, Long>> source =
                     env
-                            .addSource(
-                                    new SpoutWrapper<Tuple2<String, Long>>(
-                                            new FileParserSpout(source_type, file_path, gen_rate, source_par_deg)),
-                                    Component.SPOUT) // operator name
-                            .returns(Types.TUPLE(Types.STRING, Types.LONG));   // output type
-            //.setParallelism(source_par_deg)
+                        .addSource(
+                            new SpoutWrapper<Tuple2<String, Long>>(
+                                    new FileParserSpout(source_type, file_path, gen_rate, source_par_deg)),
+                            Component.SPOUT) // operator name
+                        .returns(Types.TUPLE(Types.STRING, Types.LONG))   // output type
+                        .setParallelism(source_par_deg);
 
             System.out.println("[main] Spout created.");
 
             DataStream<Tuple2<String, Long>> splitter_bolt =
                     source
-                            .transform(
-                                    Component.SPLITTER, // operator name
-                                    TypeExtractor.getForObject(new Tuple2<>("", 0L)), // output type
-                                    new BoltWrapper<>(new SplitterBolt(bolt1_par_deg)))
-                            .keyBy(0); // group by word
-            //.setParallelism(bolt1_par_deg);
+                        .transform(
+                            Component.SPLITTER, // operator name
+                            TypeExtractor.getForObject(new Tuple2<>("", 0L)), // output type
+                            new BoltWrapper<>(new SplitterBolt(splitter_par_deg)))
+                        .setParallelism(splitter_par_deg)
+                        .keyBy(0); // group by word
 
             System.out.println("[main] Bolt Splitter created.");
 
             DataStream<Tuple3<String, Long, Long>> counter_bolt =
                     splitter_bolt
-                            .transform(
-                                    Component.COUNTER, // operator name
-                                    TypeExtractor.getForObject(new Tuple3<>("", 0L, 0L)), // output type
-                                    new BoltWrapper<>(new CounterBolt(bolt2_par_deg)));
-            //.setParallelism(bolt2_par_deg);
+                        .transform(
+                            Component.COUNTER, // operator name
+                            TypeExtractor.getForObject(new Tuple3<>("", 0L, 0L)), // output type
+                            new BoltWrapper<>(new CounterBolt(counter_par_deg)))
+                        .setParallelism(counter_par_deg);
 
             System.out.println("[main] Bolt Counter created.");
 
             DataStream<Tuple3<String, Long, Long>> sink =
                     counter_bolt
-                            .transform(
-                                    Component.SINK, // operator name
-                                    TypeExtractor.getForObject(new Tuple3<>("", 0L, 0L)), // output type
-                                    new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)));
-            //.setParallelism(sink_par_deg);
+                        .transform(
+                            Component.SINK, // operator name
+                            TypeExtractor.getForObject(new Tuple3<>("", 0L, 0L)), // output type
+                            new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)))
+                        .setParallelism(sink_par_deg);
 
             System.out.println("[main] Sink created.");
 
             System.out.println("[main] executing topology...");
+
+            // print app info
+            System.out.println("[SUMMARY] Executing WordCount with parameters:\n" +
+                                "* file path: " + ((file_path != null) ? file_path : "random sentences") + "\n" +
+                                "* source parallelism degree: " + source_par_deg + "\n" +
+                                "* splitter parallelism degree: " + splitter_par_deg + "\n" +
+                                "* counter parallelism degree: " + counter_par_deg + "\n" +
+                                "* sink parallelism degree: " + sink_par_deg + "\n" +
+                                "* rate: " + gen_rate + "\n" +
+                                "Topology: source -> splitter -> counter -> sink");
+
             env.execute(topology_name);
         }
     }

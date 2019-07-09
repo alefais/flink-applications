@@ -12,11 +12,13 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 
 /**
- * Splits all the received lines into words.
+ *  @author  Alessandra Fais
+ *  @version July 2019
+ *
+ *  Splits all the received lines into words.
  */
 public class SplitterBolt extends BaseRichBolt {
     private static final Logger LOG = LoggerFactory.getLogger(SplitterBolt.class);
@@ -29,6 +31,8 @@ public class SplitterBolt extends BaseRichBolt {
     private long t_end;
     private int par_deg;
     private long bytes;
+    private long line_count;
+    private long word_count;
 
     SplitterBolt(int p_deg) {
         par_deg = p_deg;     // bolt parallelism degree
@@ -36,10 +40,12 @@ public class SplitterBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[SplitterBolt] Started ({} replicas).", par_deg);
+        LOG.info("[Splitter] Started ({} replicas).", par_deg);
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         bytes = 0;                   // total number of processed bytes
+        line_count = 0;              // total number of processed input tuples (lines)
+        word_count = 0;              // total number of emitted tuples (words)
 
         config = Configuration.fromMap(stormConf);
         context = topologyContext;
@@ -52,14 +58,16 @@ public class SplitterBolt extends BaseRichBolt {
         long timestamp = tuple.getLongByField(Field.TIMESTAMP);
 
         if (line != null) {
-            LOG.debug("[SplitterBolt] Received line `" + line + "`");
-            bytes += line.length();
+            LOG.debug("[Splitter] Received line `" + line + "`");
+            bytes += line.getBytes().length;
+            line_count++;
 
             String[] words = line.split("\\W");
             for (String word : words) {
                 if (!StringUtils.isBlank(word)) {
                     collector.emit(tuple, new Values(word, timestamp));
                     LOG.debug("[SplitterBolt] Sending `" + word + "`");
+                    word_count++;
                 }
             }
         }
@@ -72,9 +80,16 @@ public class SplitterBolt extends BaseRichBolt {
     public void cleanup() {
         long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
-        System.out.println("[SplitterBolt] Processed " + (bytes / 1048576) + " in " + t_elapsed + " ms.");
-        System.out.println("[SplitterBolt] Bandwidth is " +
-                (bytes / 1048576) / (t_elapsed / 1000) + " MB per second.");
+        double mbs = (double)(bytes / 1048576) / (double)(t_elapsed / 1000);
+        String formatted_mbs = String.format("%.5f", mbs);
+
+        System.out.println("[Splitter] execution time: " + t_elapsed + " ms, " +
+                            "processed: " + line_count + " (lines) "
+                            + word_count + " (words) "
+                            + (bytes / 1048576) + " (MB), " +
+                            "bandwidth: " + word_count / (t_elapsed / 1000) + " (words/s) "
+                            + formatted_mbs + " (MB/s) "
+                            + bytes / (t_elapsed / 1000) + " (bytes/s)");
     }
 
     @Override
