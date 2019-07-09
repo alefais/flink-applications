@@ -65,11 +65,11 @@ public class ConsoleSink extends BaseRichBolt {
                 word + "` occurred " +
                 count + " times since now.");
 
-        if (gen_rate != -1) {   // evaluate latency
-            long now = System.nanoTime();
-            double tuple_latency = (double)(now - timestamp) / 1000000.0; // tuple latency in ms
-            tuple_latencies.addValue(tuple_latency);
-        }
+        // evaluate latency
+        long now = System.nanoTime();
+        double tuple_latency = (double)(now - timestamp) / 1000000.0; // tuple latency in ms
+        tuple_latencies.addValue(tuple_latency);
+
         collector.ack(tuple);
 
         bytes += word.getBytes().length;
