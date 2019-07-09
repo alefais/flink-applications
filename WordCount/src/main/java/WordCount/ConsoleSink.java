@@ -2,6 +2,7 @@ package WordCount;
 
 import Constants.WordCountConstants.Field;
 import Util.config.Configuration;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -10,12 +11,13 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * The sink is in charge of printing the results.
+ *  @author  Alessandra Fais
+ *  @version July 2019
+ *
+ *  Sink node that receives and prints the results.
  */
 public class ConsoleSink extends BaseRichBolt {
 
@@ -30,21 +32,23 @@ public class ConsoleSink extends BaseRichBolt {
     private int par_deg;
     private int gen_rate;
     private long bytes;
+    private long words;
 
-    private ArrayList<Long> tuple_latencies;
+    private DescriptiveStatistics tuple_latencies;
 
     ConsoleSink(int p_deg, int g_rate) {
         par_deg = p_deg;         // sink parallelism degree
         gen_rate = g_rate;       // generation rate of the source (spout)
-        tuple_latencies = new ArrayList<>();
     }
 
     @Override
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        LOG.info("[ConsoleSink] Started ({} replicas).", par_deg);
+        LOG.info("[Sink] started ({} replicas)", par_deg);
 
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         bytes = 0;                   // total number of processed bytes
+        words = 0;                   // total number of processed words
+        tuple_latencies = new DescriptiveStatistics();
 
         config = Configuration.fromMap(stormConf);
         context = topologyContext;
@@ -57,41 +61,52 @@ public class ConsoleSink extends BaseRichBolt {
         long count = tuple.getLongByField(Field.COUNT);
         long timestamp = tuple.getLongByField(Field.TIMESTAMP);
 
-        LOG.debug("[ConsoleSink] Received `" +
+        LOG.debug("[Sink] Received `" +
                 word + "` occurred " +
                 count + " times since now.");
 
         if (gen_rate != -1) {   // evaluate latency
             long now = System.nanoTime();
-            long tuple_latency = (now - timestamp); // tuple latency in nanoseconds
-            tuple_latencies.add(tuple_latency);
+            double tuple_latency = (double)(now - timestamp) / 1000000.0; // tuple latency in ms
+            tuple_latencies.addValue(tuple_latency);
         }
         collector.ack(tuple);
 
-        bytes += word.length();
+        bytes += word.getBytes().length;
+        words++;
         t_end = System.nanoTime();
     }
 
     @Override
     public void cleanup() {
         if (bytes == 0) {
-            System.out.println("[ConsoleSink] No words received.");
+            System.out.println("[Sink] processed: " + bytes + " (bytes) " + words + " (words)");
         } else {
-            if (gen_rate == -1) {  // evaluate bandwidth
-                long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
+            // evaluate bandwidth and latency
+            long t_elapsed = (t_end - t_start) / 1000000;       // elapsed time in ms
 
-                System.out.println("[ConsoleSink] Processed " + (bytes / 1048576) + " in " + t_elapsed + " ms.");
-                System.out.println("[ConsoleSink] Bandwidth is " +
-                        (bytes / 1048576) / (t_elapsed / 1000) + " MB per second.");
-            } else {  // evaluate latency
-                long acc = 0L;
-                for (Long tl : tuple_latencies) {
-                    acc += tl;
-                }
-                double avg_latency = (double) acc / tuple_latencies.size(); // average latency in nanoseconds
+            double mbs = (double)(bytes / 1048576) / (double)(t_elapsed / 1000);
+            String formatted_mbs = String.format("%.5f", mbs);
 
-                System.out.println("[ConsoleSink] Average latency: " + avg_latency / 1000000 + " ms."); // average latency in milliseconds
-            }
+            // bandwidth summary
+            System.out.println("[Sink] processed: " +
+                                words + " (words) " +
+                                (bytes / 1048576) + " (MB), " +
+                                "bandwidth: " +
+                                words / (t_elapsed / 1000) + " (words/s) " +
+                                formatted_mbs + " (MB/s) " +
+                                bytes / (t_elapsed / 1000) + " (bytes/s).");
+
+            // latency summary
+            System.out.println("[Sink] latency (ms): " +
+                                tuple_latencies.getMean() + " (mean) " +
+                                tuple_latencies.getMin() + " (min) " +
+                                tuple_latencies.getPercentile(0.05) + " (5th) " +
+                                tuple_latencies.getPercentile(0.25) + " (25th) " +
+                                tuple_latencies.getPercentile(0.5) + " (50th) " +
+                                tuple_latencies.getPercentile(0.75) + " (75th) " +
+                                tuple_latencies.getPercentile(0.95) + " (95th) " +
+                                tuple_latencies.getMax() + " (max).");
         }
     }
 
