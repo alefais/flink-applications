@@ -17,10 +17,11 @@ do
         printf "extract from tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log\n\n"
 
 	    # bandwidth
-	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $15 }' >> tests/output_60s/bandwidth_words_$nsource.txt
-	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $17 }' >> tests/output_60s/bandwidth_MB_$nsource.txt
+	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 1 { print $9 }' >> tests/output_60s/bandwidth_words.txt
+	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 1 { print $11 }' >> tests/output_60s/bandwidth_MB.txt
 
         # latency
-	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency_$nsource.txt
+	    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
+        grep "Sink" tests/output_60s/main_$nsource-$nsplit-$nsource-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $10 }' >> tests/output_60s/latency_mean.txt
     done
 done
