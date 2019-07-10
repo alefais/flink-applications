@@ -25,6 +25,6 @@ do
     do
         printf "flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $nsource --nsink 1 --rate 10000\n\n"
 
-        ./run_params.sh $nsource $nsource $nsplit 1 10000
+        ./run_params.sh $nsource $nsplit $nsource 1 10000
     done
 done
