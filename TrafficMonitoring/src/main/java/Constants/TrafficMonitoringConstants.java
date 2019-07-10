@@ -1,13 +1,16 @@
 package Constants;
 
 /**
- * Constants peculiar of the TrafficMonitoring application.
+ *  @author  Alessandra Fais
+ *  @version June 2019
+ *
+ *  Constants peculiar of the TrafficMonitoring application.
  */
 public interface TrafficMonitoringConstants extends BaseConstants {
     String DEFAULT_PROPERTIES = "/trafficmonitoring/tm.properties";
     String DEFAULT_TOPO_NAME = "TrafficMonitoring";
-    String BEIJING_SHAPEFILE = "../../data/app/tm/beijing/roads.shp";
-    String DUBLIN_SHAPEFILE = "../../data/app/tm/dublin/roads.shp";
+    String BEIJING_SHAPEFILE = "data/beijing/roads.shp";
+    String DUBLIN_SHAPEFILE = "data/dublin/roads.shp";
 
     interface Conf {
         String SPOUT_BEIJING = "tm.spout.beijing";
