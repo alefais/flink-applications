@@ -2,6 +2,12 @@ package RoadModel;
 
 import Util.collections.FixedSizeQueue;
 
+/**
+ *  @author Alessandra Fais
+ *  @version June 2019
+ *
+ *  The class defines a road.
+ */
 public class Road {
     private final int roadID;
     private final FixedSizeQueue<Integer> roadSpeed;
