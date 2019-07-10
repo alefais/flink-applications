@@ -18,15 +18,17 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 /**
- * The topology entry class. The Storm compatible API is used in order to submit
- * a Storm topology to Flink. The used Storm classes are replaced with their
- * Flink counterparts in the Storm client code that assembles the topology.
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
- * See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
+ *  The topology entry class. The Storm compatible API is used in order to submit
+ *  a Storm topology to Flink. The used Storm classes are replaced with their
+ *  Flink counterparts in the Storm client code that assembles the topology.
+ *
+ *  See https://ci.apache.org/projects/flink/flink-docs-stable/dev/libs/storm_compatibility.html
  */
 public class TrafficMonitoring {
 
@@ -71,8 +73,8 @@ public class TrafficMonitoring {
             else
                 city = conf.get(Conf.MAP_MATCHER_SHAPEFILE);
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt1_par_deg = params.getInt("nbolt1", conf.getInt(Conf.MAP_MATCHER_THREADS));
-            int bolt2_par_deg = params.getInt("nbolt2", conf.getInt(Conf.SPEED_CALCULATOR_THREADS));
+            int matcher_par_deg = params.getInt("nmatcher", conf.getInt(Conf.MAP_MATCHER_THREADS));
+            int calculator_par_deg = params.getInt("ncalculator", conf.getInt(Conf.SPEED_CALCULATOR_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
@@ -90,7 +92,12 @@ public class TrafficMonitoring {
 
             // set the parallelism degree for all activities in the topology
             int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
-            env.setParallelism(pardeg);
+            if (pardeg != conf.getInt(Conf.ALL_THREADS)) {
+                source_par_deg = pardeg;
+                matcher_par_deg = pardeg;
+                calculator_par_deg = pardeg;
+                sink_par_deg = pardeg;
+            }
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
 
@@ -98,46 +105,57 @@ public class TrafficMonitoring {
             DataStream<Tuple6<String, Double, Double, Double, Integer, Long>> source =
                     env
                         .addSource(
-                                new SpoutWrapper<Tuple6<String, Double, Double, Double, Integer, Long>>(
-                                        new FileParserSpout(city, gen_rate, source_par_deg)),
-                                Component.SPOUT) // operator name
-                        .returns(Types.TUPLE(Types.STRING, Types.DOUBLE, Types.DOUBLE, Types.DOUBLE, Types.INT, Types.LONG));   // output type
-                        //.setParallelism(source_par_deg)
+                            new SpoutWrapper<Tuple6<String, Double, Double, Double, Integer, Long>>(
+                                new FileParserSpout(city, gen_rate, source_par_deg)),
+                            Component.SPOUT) // operator name
+                        .returns(Types.TUPLE(Types.STRING, Types.DOUBLE, Types.DOUBLE, Types.DOUBLE, Types.INT, Types.LONG))   // output type
+                        .setParallelism(source_par_deg);
 
             System.out.println("[main] Spout created.");
 
             DataStream<Tuple3<Integer, Integer, Long>> map_matching_bolt =
                     source
-                            .transform(
-                                    Component.MAP_MATCHER, // operator name
-                                    TypeExtractor.getForObject(new Tuple3<>(0, 0, 0L)), // output type
-                                    new BoltWrapper<>(new MapMatchingBolt(city, bolt1_par_deg)))
-                            .keyBy(0); // group by roadID
-                            //.setParallelism(bolt1_par_deg);
+                        .transform(
+                            Component.MAP_MATCHER, // operator name
+                            TypeExtractor.getForObject(new Tuple3<>(0, 0, 0L)), // output type
+                            new BoltWrapper<>(new MapMatchingBolt(city, matcher_par_deg)))
+                        .setParallelism(matcher_par_deg)
+                        .keyBy(0); // group by roadID
 
             System.out.println("[main] Bolt MapMatcher created.");
 
             DataStream<Tuple4<Integer, Integer, Integer, Long>> speed_calc_bolt =
                     map_matching_bolt
-                            .transform(
-                                    Component.SPEED_CALCULATOR, // operator name
-                                    TypeExtractor.getForObject(new Tuple4<>(0, 0, 0, 0L)), // output type
-                                    new BoltWrapper<>(new SpeedCalculatorBolt(bolt2_par_deg)));
-                            //.setParallelism(bolt2_par_deg);
+                        .transform(
+                            Component.SPEED_CALCULATOR, // operator name
+                            TypeExtractor.getForObject(new Tuple4<>(0, 0, 0, 0L)), // output type
+                            new BoltWrapper<>(new SpeedCalculatorBolt(calculator_par_deg)))
+                        .setParallelism(calculator_par_deg);
 
             System.out.println("[main] Bolt SpeedCalculator created.");
 
             DataStream<Tuple4<Integer, Integer, Integer, Long>> sink =
                     speed_calc_bolt
-                            .transform(
-                                    Component.SINK, // operator name
-                                    TypeExtractor.getForObject(new Tuple4<>(0, 0, 0, 0L)), // output type
-                                    new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)));
-                            //.setParallelism(sink_par_deg);
+                        .transform(
+                            Component.SINK, // operator name
+                            TypeExtractor.getForObject(new Tuple4<>(0, 0, 0, 0L)), // output type
+                            new BoltWrapper<>(new ConsoleSink(sink_par_deg, gen_rate)))
+                        .setParallelism(sink_par_deg);
 
             System.out.println("[main] Sink created.");
 
             System.out.println("[main] executing topology...");
+
+            // print app info
+            LOG.info("[SUMMARY] Executing TrafficMonitoring with parameters:\n" +
+                    "* city: " + city + "\n" +
+                    "* source parallelism degree: " + source_par_deg + "\n" +
+                    "* map-match parallelism degree: " + matcher_par_deg + "\n" +
+                    "* calculator parallelism degree: " + calculator_par_deg + "\n" +
+                    "* sink parallelism degree: " + sink_par_deg + "\n" +
+                    "* rate: " + gen_rate + "\n" +
+                    "Topology: source -> map-matcher -> speed-calculator -> sink");
+
             env.execute(topology_name);
         }
     }

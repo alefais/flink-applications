@@ -10,7 +10,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -18,9 +17,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * The spout is in charge of reading the input data file containing
- * vehicle-traces, parsing it and generating the stream of records
- * toward the MapMatchingBolt.
+ *  @author  Alessandra Fais
+ *  @version July 2019
+ *
+ *  The spout is in charge of reading the input data file containing
+ *  vehicle-traces, parsing it and generating the stream of records
+ *  toward the MapMatchingBolt.
  */
 public class FileParserSpout extends BaseRichSpout {
 
@@ -70,7 +72,7 @@ public class FileParserSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-        LOG.info("[FileParserSpout] Started ({} replicas with rate {}).", par_deg, rate);
+        LOG.info("[Source] Started ({} replicas with rate {}).", par_deg, rate);
 
         t_start = System.nanoTime(); // spout start time in nanoseconds
 
@@ -114,12 +116,11 @@ public class FileParserSpout extends BaseRichSpout {
     public void close() {
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
-        System.out.println("[FileParserSpout] Terminated after " + nt_execution + " generations.");
-        System.out.println("[FileParserSpout] Emitted " + generated +
-                            " tuples in " + t_elapsed + " ms. " +
-                            "Source bandwidth is " +
-                            generated / (t_elapsed / 1000) +
-                            " tuples per second.");
+        System.out.println("[Source] execution time: " + t_elapsed +
+                            " ms, generations: " + nt_execution +
+                            ", generated: " + generated +
+                            ", bandwidth: " + generated / (t_elapsed / 1000) +  // tuples per second
+                            " tuples/s");
     }
 
     @Override
@@ -157,7 +158,7 @@ public class FileParserSpout extends BaseRichSpout {
                     bearings.add(Integer.valueOf(fields[BeijingParsing.B_DIRECTION_FIELD]));
                     generated++;
 
-                    LOG.debug("[FileParserSpout] Beijing Fields: {} ; {} ; {} ; {} ; {}",
+                    LOG.debug("[Source] Beijing Fields: {} ; {} ; {} ; {} ; {}",
                             fields[BeijingParsing.B_VEHICLE_ID_FIELD],
                             fields[BeijingParsing.B_LATITUDE_FIELD],
                             fields[BeijingParsing.B_LONGITUDE_FIELD],
@@ -182,7 +183,7 @@ public class FileParserSpout extends BaseRichSpout {
                     bearings.add(Integer.valueOf(fields[DublinParsing.D_DIRECTION_FIELD]));
                     generated++;
 
-                    LOG.debug("[FileParserSpout] Dublin Fields: {} ; {} ; {} ; {}",
+                    LOG.debug("[Source] Dublin Fields: {} ; {} ; {} ; {}",
                             fields[DublinParsing.D_VEHICLE_ID_FIELD],
                             fields[DublinParsing.D_LATITUDE_FIELD],
                             fields[DublinParsing.D_LONGITUDE_FIELD],
@@ -190,7 +191,7 @@ public class FileParserSpout extends BaseRichSpout {
                 }
             }
             scan.close();
-            LOG.info("[FileParserSpout] Parsed dataset: generated {} tuples.", generated);
+            LOG.info("[Source] parsed dataset: " + generated + " tuples");
             generated = 0;
         } catch (FileNotFoundException | NullPointerException e) {
             LOG.error("The file {} does not exists", city_tracefile);
@@ -211,6 +212,6 @@ public class FileParserSpout extends BaseRichSpout {
             t_now = System.nanoTime();
             end = (t_now - t_start) >= nsecs;
         }
-        LOG.debug("[FileParserSpout] delay {} ns.", nsecs);
+        LOG.debug("[Source] delay " + nsecs + " ns.");
     }
 }
