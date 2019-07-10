@@ -14,7 +14,7 @@ sleep 5
 # start a new TaskManager
 ~/flink-release/flink-1.7.2/bin/start-cluster.sh
 
-sleep 5
+sleep 10
 
 printf "executing WordCount --nsource $1 --nsplitter $2 --ncounter $3 --nsink $4 --rate $5 for 60s...\n"
 
@@ -26,9 +26,9 @@ printf "stopping...\n"
 
 flink stop $(flink list | grep WordCount | awk '{ print $4 }')
 
-sleep 5
+sleep 20
 
 printf "saving logs...\n"
 
-cp ~/flink-release/flink-1.7.2/log/flink-fais-taskexecutor-0-pianosau.out tests/output_60s/
-mv tests/output_60s/flink-fais-taskexecutor-0-pianosau.out tests/output_60s/main_$1-$2-$3-$4_$5.log
+cp ~/flink-release/flink-1.7.2/log/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/
+mv tests/output_60s/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/main_$1-$2-$3-$4_$5.log
