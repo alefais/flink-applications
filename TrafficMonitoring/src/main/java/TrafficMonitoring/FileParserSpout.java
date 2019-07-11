@@ -114,6 +114,7 @@ public class FileParserSpout extends BaseRichSpout {
 
     @Override
     public void close() {
+        if (nt_execution == 0) nt_end = System.nanoTime();
         long t_elapsed = (nt_end - t_start) / 1000000;  // elapsed time in milliseconds
 
         System.out.println("[Source] execution time: " + t_elapsed +

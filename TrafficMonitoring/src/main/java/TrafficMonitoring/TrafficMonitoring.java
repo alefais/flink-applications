@@ -147,14 +147,14 @@ public class TrafficMonitoring {
             System.out.println("[main] executing topology...");
 
             // print app info
-            LOG.info("[SUMMARY] Executing TrafficMonitoring with parameters:\n" +
-                    "* city: " + city + "\n" +
-                    "* source parallelism degree: " + source_par_deg + "\n" +
-                    "* map-match parallelism degree: " + matcher_par_deg + "\n" +
-                    "* calculator parallelism degree: " + calculator_par_deg + "\n" +
-                    "* sink parallelism degree: " + sink_par_deg + "\n" +
-                    "* rate: " + gen_rate + "\n" +
-                    "Topology: source -> map-matcher -> speed-calculator -> sink");
+            System.out.println("[SUMMARY] Executing TrafficMonitoring with parameters:\n" +
+                            "* city: " + city + "\n" +
+                            "* source parallelism degree: " + source_par_deg + "\n" +
+                            "* map-match parallelism degree: " + matcher_par_deg + "\n" +
+                            "* calculator parallelism degree: " + calculator_par_deg + "\n" +
+                            "* sink parallelism degree: " + sink_par_deg + "\n" +
+                            "* rate: " + gen_rate + "\n" +
+                            "Topology: source -> map-matcher -> speed-calculator -> sink");
 
             env.execute(topology_name);
         }

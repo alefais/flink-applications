@@ -87,20 +87,20 @@ public class ConsoleSink extends BaseRichBolt {
             long t_elapsed = (t_end - t_start) / 1000000; // elapsed time in milliseconds
 
             // bandwidth summary
-            LOG.info("[Sink] processed tuples: " + processed +
-                    ", bandwidth: " +  processed / (t_elapsed / 1000) +
-                    " tuples/s.");
+            System.out.println("[Sink] processed tuples: " + processed +
+                            ", bandwidth: " +  processed / (t_elapsed / 1000) +
+                            " tuples/s.");
 
             // latency summary
-            LOG.info("[Sink] latency (ms): " +
-                    tuple_latencies.getMean() + " (mean) " +
-                    tuple_latencies.getMin() + " (min) " +
-                    tuple_latencies.getPercentile(0.05) + " (5th) " +
-                    tuple_latencies.getPercentile(0.25) + " (25th) " +
-                    tuple_latencies.getPercentile(0.5) + " (50th) " +
-                    tuple_latencies.getPercentile(0.75) + " (75th) " +
-                    tuple_latencies.getPercentile(0.95) + " (95th) " +
-                    tuple_latencies.getMax() + " (max).");
+            System.out.println("[Sink] latency (ms): " +
+                            tuple_latencies.getMean() + " (mean) " +
+                            tuple_latencies.getMin() + " (min) " +
+                            tuple_latencies.getPercentile(0.05) + " (5th) " +
+                            tuple_latencies.getPercentile(0.25) + " (25th) " +
+                            tuple_latencies.getPercentile(0.5) + " (50th) " +
+                            tuple_latencies.getPercentile(0.75) + " (75th) " +
+                            tuple_latencies.getPercentile(0.95) + " (95th) " +
+                            tuple_latencies.getMax() + " (max).");
         }
     }
 
