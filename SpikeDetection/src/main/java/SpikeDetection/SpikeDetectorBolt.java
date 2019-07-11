@@ -13,12 +13,11 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 
 /**
- *  @author Alessandra Fais
- *  @version May 2019
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
  *  The bolt is in charge of detecting spikes in the measurements received by sensors
  *  with respect to a properly defined threshold.
@@ -58,14 +57,14 @@ public class SpikeDetectorBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String deviceID = tuple.getString(0);
-        double moving_avg_instant = tuple.getDouble(1);
-        double next_property_value = tuple.getDouble(2);
-        long timestamp = tuple.getLong(3);
+        String deviceID = tuple.getString(0);               // Field.DEVICE_ID
+        double moving_avg_instant = tuple.getDouble(1);     // Field.MOVING_AVG
+        double next_property_value = tuple.getDouble(2);    // Field.VALUE
+        long timestamp = tuple.getLong(3);                  // Field.TIMESTAMP
 
         LOG.debug("[Detector] tuple: deviceID " + deviceID +
                     ", incremental_average " + moving_avg_instant +
-                    ", next_value " + next_property_value
+                    ", next_value " + next_property_value +
                     ", ts " + timestamp);
 
         if (Math.abs(next_property_value - moving_avg_instant) > spike_threshold * moving_avg_instant) {

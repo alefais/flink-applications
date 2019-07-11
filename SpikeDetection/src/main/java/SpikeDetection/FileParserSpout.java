@@ -13,7 +13,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -21,8 +20,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- *  @author Alessandra Fais
- *  @version May 2019
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
  *  The spout is in charge of reading the input data file containing
  *  measurements from a set of sensor devices, parsing it
@@ -213,13 +212,13 @@ public class FileParserSpout extends BaseRichSpout {
                     LOG.debug("[Source] tuple: deviceID " + fields[DatasetParsing.DEVICEID_FIELD] +
                             ", property " + value_field + " " + fields[value_field_key]);
                     LOG.debug("[Source] fields: " +
-                                    fields[DatasetParsing.DATE_FIELD] + " "
-                            fields[DatasetParsing.TIME_FIELD] + " "
-                            fields[DatasetParsing.EPOCH_FIELD] + " "
-                            fields[DatasetParsing.DEVICEID_FIELD] + " "
-                            fields[DatasetParsing.TEMP_FIELD] + " "
-                            fields[DatasetParsing.HUMID_FIELD] + " "
-                            fields[DatasetParsing.LIGHT_FIELD] + " "
+                                    fields[DatasetParsing.DATE_FIELD] + " " +
+                            fields[DatasetParsing.TIME_FIELD] + " " +
+                            fields[DatasetParsing.EPOCH_FIELD] + " " +
+                            fields[DatasetParsing.DEVICEID_FIELD] + " " +
+                            fields[DatasetParsing.TEMP_FIELD] + " " +
+                            fields[DatasetParsing.HUMID_FIELD] + " " +
+                            fields[DatasetParsing.LIGHT_FIELD] + " " +
                             fields[DatasetParsing.VOLT_FIELD]);
                 } else
                     LOG.debug("[Source] incomplete record");

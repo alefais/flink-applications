@@ -12,14 +12,13 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 /**
- *  @author Alessandra Fais
- *  @version May 2019
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
  *  The bolt is in charge of computing the average over a window of values.
  *  It manages one window for each device_id.
@@ -64,9 +63,9 @@ public class MovingAverageBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String deviceID = tuple.getString(0);
-        double next_property_value = tuple.getDouble(1);
-        long timestamp = tuple.getLong(2);
+        String deviceID = tuple.getString(0);               // Field.DEVICE_ID
+        double next_property_value = tuple.getDouble(1);    // Field.VALUE
+        long timestamp = tuple.getLong(2);                  // Field.TIMESTAMP
 
         double moving_avg_instant = movingAverage(deviceID, next_property_value);
 
@@ -75,7 +74,7 @@ public class MovingAverageBolt extends BaseRichBolt {
 
         LOG.debug("[Average] tuple: deviceID " + deviceID +
                         ", incremental_average " + moving_avg_instant +
-                        ", next_value " + next_property_value
+                        ", next_value " + next_property_value +
                         ", ts " + timestamp);
 
         processed++;
