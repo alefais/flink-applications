@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  @author Alessandra Fais
- *  @version May 2019
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
  *  The topology entry class. The Storm compatible API is used in order to submit
  *  a Storm topology to Flink. The used Storm classes are replaced with their
@@ -58,8 +58,8 @@ public class SpikeDetection {
             // parse command line arguments
             String file_path = params.get("file", conf.get(Conf.SPOUT_PATH));
             int source_par_deg = params.getInt("nsource", conf.getInt(Conf.SPOUT_THREADS));
-            int bolt1_par_deg = params.getInt("naverage", conf.getInt(Conf.MOVING_AVERAGE_THREADS));
-            int bolt2_par_deg = params.getInt("ndetector", conf.getInt(Conf.SPIKE_DETECTOR_THREADS));
+            int average_par_deg = params.getInt("naverage", conf.getInt(Conf.MOVING_AVERAGE_THREADS));
+            int detector_par_deg = params.getInt("ndetector", conf.getInt(Conf.SPIKE_DETECTOR_THREADS));
             int sink_par_deg = params.getInt("nsink", conf.getInt(Conf.SINK_THREADS));
 
             // source generation rate (for tests)
@@ -79,11 +79,10 @@ public class SpikeDetection {
             int pardeg = params.getInt("pardeg", conf.getInt(Conf.ALL_THREADS));
             if (pardeg != conf.getInt(Conf.ALL_THREADS)) {
                 source_par_deg = pardeg;
-                bolt1_par_deg = pardeg;
-                bolt2_par_deg = pardeg;
+                average_par_deg = pardeg;
+                detector_par_deg = pardeg;
                 sink_par_deg = pardeg;
             }
-            //env.setParallelism(pardeg);
 
             System.out.println("[main] Command line arguments parsed and configuration set.");
 
@@ -105,8 +104,8 @@ public class SpikeDetection {
                         .transform(
                             Component.MOVING_AVERAGE, // operator name
                             TypeExtractor.getForObject(new Tuple4<>("", 0.0, 0.0, 0L)), // output type
-                            new BoltWrapper<>(new MovingAverageBolt(bolt1_par_deg)))
-                        .setParallelism(bolt1_par_deg);
+                            new BoltWrapper<>(new MovingAverageBolt(average_par_deg)))
+                        .setParallelism(average_par_deg);
 
             System.out.println("[main] Bolt MovingAverage created.");
 
@@ -115,8 +114,8 @@ public class SpikeDetection {
                         .transform(
                             Component.SPIKE_DETECTOR, // operator name
                             TypeExtractor.getForObject(new Tuple4<>("", 0.0, 0.0, 0L)), // output type
-                            new BoltWrapper<>(new SpikeDetectorBolt(bolt2_par_deg)))
-                        .setParallelism(bolt2_par_deg);
+                            new BoltWrapper<>(new SpikeDetectorBolt(detector_par_deg)))
+                        .setParallelism(detector_par_deg);
 
             System.out.println("[main] Bolt SpikeDetector created.");
 
@@ -131,6 +130,17 @@ public class SpikeDetection {
             System.out.println("[main] Sink created.");
 
             System.out.println("[main] executing topology...");
+
+            // print app info
+            System.out.println("[SUMMARY] Executing SpikeDetection with parameters:\n" +
+                    "* file: " + file_path + "\n" +
+                    "* source parallelism degree: " + source_par_deg + "\n" +
+                    "* moving-average parallelism degree: " + average_par_deg + "\n" +
+                    "* detector parallelism degree: " + detector_par_deg + "\n" +
+                    "* sink parallelism degree: " + sink_par_deg + "\n" +
+                    "* rate: " + gen_rate + "\n" +
+                    "Topology: source -> moving-average -> detector -> sink");
+
             env.execute(topology_name);
         }
     }
