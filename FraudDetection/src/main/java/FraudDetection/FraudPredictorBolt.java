@@ -16,12 +16,11 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version May 2019
+ *  @version July 2019
  *
  *  The bolt is in charge of implementing outliers detection.
  *  Given a transaction sequence of a customer, there is a probability associated with each path
@@ -67,9 +66,9 @@ public class FraudPredictorBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String entityID = tuple.getString(0);
-        String record = tuple.getString(1);
-        Long timestamp = tuple.getLong(2);
+        String entityID = tuple.getString(0);   // Field.ENTITY_ID
+        String record = tuple.getString(1);     // Field.RECORD_DATA
+        Long timestamp = tuple.getLong(2);      // Field.TIMESTAMP
 
         Prediction p = predictor.execute(entityID, record);
         LOG.debug("[Predictor] tuple: entityID " + entityID + ", record " + record + ", ts " + timestamp);

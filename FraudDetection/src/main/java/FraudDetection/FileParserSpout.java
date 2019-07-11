@@ -10,7 +10,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -18,8 +17,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- *  @author Alessandra Fais
- *  @version May 2019
+ *  @author  Alessandra Fais
+ *  @version July 2019
  *
  *  The spout is in charge of reading the input data file, parsing it
  *  and generating the stream of records toward the FraudPredictorBolt.
@@ -42,7 +41,6 @@ public class FileParserSpout extends BaseRichSpout {
     private long t_start;
     private long generated;
     private long emitted;
-    private int reset;
     private long nt_execution;
     private long nt_end;
     private int par_deg;
@@ -70,7 +68,6 @@ public class FileParserSpout extends BaseRichSpout {
         par_deg = p_deg;        // spout parallelism degree
         generated = 0;          // total number of generated tuples
         emitted = 0;            // total number of emitted tuples
-        reset = 0;
         nt_execution = 0;       // number of executions of nextTuple() method
 
         entities = new ArrayList<>();
