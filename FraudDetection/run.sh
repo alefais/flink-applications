@@ -1,17 +1,37 @@
 #!/usr/bin/env bash
 
-# Flink tests bandwidth
+# @author   Alessandra Fais
+# @date     July 2019
 
-./run_params.sh 1 1 1
-./run_params.sh 1 2 1
-./run_params.sh 1 4 1
-./run_params.sh 1 8 1
-./run_params.sh 1 14 1
+############################################## create test directories #################################################
 
-./run_params.sh 2 4 1
-./run_params.sh 2 8 1
-./run_params.sh 2 13 1
+if [ ! -d tests ]; then
+    mkdir tests
+fi
+if [ ! -d tests/output_60s ]; then
+    mkdir tests/output_60s
+fi
 
-./run_params.sh 4 8 1
-./run_params.sh 4 11 1
-./run_params.sh 5 10 1
+#################################################### run tests #########################################################
+
+printf "Running Flink tests for FraudDetection application\n"
+
+NTHREADS=32
+NSOURCE_MAX=4
+for nsource in $(seq 1 $NSOURCE_MAX);
+do
+    NPRED_MAX=$((NTHREADS-nsource-1))
+    for npred in {0..$NPRED_MAX..2};
+    do
+        if [ $npred -eq 0 ];
+        then
+            printf "flink_frauddetection --nsource $nsource --npred 1 --nsink 1 --rate -1\n\n"
+
+            ./run_params.sh $nsource 1 1
+        else
+            printf "flink_frauddetection --nsource $nsource --npred $npred --nsink 1 --rate -1\n\n"
+
+            ./run_params.sh $nsource $npred 1
+        fi
+    done
+done
