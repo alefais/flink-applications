@@ -18,10 +18,11 @@ do
         printf "extract from tests/output_60s/main_1-$nmatch-1-1_$RATE.log\n\n"
 
         # bandwidth
-	    grep "MapMatch" tests/output_60s/main_1-$nmatch-1-1_$RATE.log | awk  -F'[, ]' 'FNR == 2 { print $17 }' >> tests/output_60s/bandwidth_$RATE-$nmatch.txt
+	    grep "MapMatch" tests/output_60s/main_1-$nmatch-1-1_$RATE.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$RATE-$nmatch.txt
 
         # latency
-	    grep "Sink" tests/output_60s/main_1-$nmatch-1-1_$RATE.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency_$nsource.txt
+	    grep "Sink" tests/output_60s/main_1-$nmatch-1-1_$RATE.log | awk  -F'[, ]' 'FNR == 2 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
+        grep "Sink" tests/output_60s/main_1-$nmatch-1-1_$RATE.log | awk  -F'[, ]' 'FNR == 2 { print $10 }' >> tests/output_60s/latency_mean.txt
     done
 done
 
