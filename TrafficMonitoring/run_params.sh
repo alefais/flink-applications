@@ -29,11 +29,8 @@ flink stop $(flink list | grep TrafficMonitoring | awk '{ print $4 }')
 if [ $2 -lt 4 ]
 then
     sleep 1800 # 30 minutes
-elif [ $2 -lt 10 ]
-then
-    sleep 600 # 10 minutes
 else
-    sleep 300 # 5 minutes
+    sleep 600 # 10 minutes
 fi
 
 printf "saving logs...\n"
