@@ -18,13 +18,18 @@ printf "Running Flink tests for WordCount application\n"
 
 NTHREADS=32
 NSOURCE_MAX=4
+NSPLIT_MAX=8
+NCOUNT_MAX=8
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
-    NSPLIT_MAX=$((NTHREADS-nsource-nsource-1))
-    for nsplit in $(seq 1 $NSPLIT_MAX);
+    # NSPLIT_MAX=$((NTHREADS-nsource-nsource-1))
+    for nsplit in $(seq $nsource $NSPLIT_MAX);
     do
-        printf "flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $nsource --nsink 1 --rate 10000\n\n"
+        for ncount in $(seq $nsplit $NCOUNT_MAX);
+        do
+            printf "flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $ncount --nsink 1 --rate 10000\n\n"
 
-        ./run_params.sh $nsource $nsplit $nsource 1 10000
+            ./run_params.sh $nsource $nsplit $ncount 1 10000
+        done
     done
 done
