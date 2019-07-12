@@ -14,7 +14,14 @@ fi
 
 #################################################### run tests #########################################################
 
-printf "Running Flink tests for TrafficMonitoring application\n"
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+NORMAL=$(tput sgr0)
+
+printf "${GREEN}Running Flink tests for TrafficMonitoring application\n${NORMAL}"
 
 NTHREADS=32
 NSOURCE_MAX=1
@@ -22,10 +29,23 @@ for nsource in $(seq 1 $NSOURCE_MAX);
 do
     NMATCH_MAX=$((NTHREADS-3))
     RATE=$((nsource*1000))
-    for nmatch in $(seq 1 $NMATCH_MAX);
+    for nmatch in {0..29..2};
     do
-        printf "storm_trafficmonitoring --nsource 1 --nmatcher $nmatch --ncalculator 1 --nsink 1 --rate $RATE\n\n"
+        if [ $nmatch -eq 0 ];
+        then
+            printf "${BLUE}flink_trafficmonitoring --nsource 1 --nmatcher 1 --ncalculator 1 --nsink 1 --rate $RATE\n\n${NORMAL}"
 
-        ./run_params.sh 1 $nmatch 1 1 $RATE
+            ./run_params.sh 1 1 1 1 $RATE
+
+        elif [ $nmatch -le $NMATCH_MAX ];
+        then
+            printf "${BLUE}flink_trafficmonitoring --nsource 1 --nmatcher $nmatch --ncalculator 1 --nsink 1 --rate $RATE\n\n${NORMAL}"
+
+            ./run_params.sh 1 $nmatch 1 1 $RATE
+        else
+            printf "${BLUE}storm_trafficmonitoring --nsource 1 --nmatcher 29 --ncalculator 1 --nsink 1 --rate $RATE\n\n${NORMAL}"
+
+            ./run_params.sh 1 29 1 1 $RATE
+        fi
     done
 done
