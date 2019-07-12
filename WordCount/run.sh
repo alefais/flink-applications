@@ -14,22 +14,38 @@ fi
 
 #################################################### run tests #########################################################
 
-printf "Running Flink tests for WordCount application\n"
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+NORMAL=$(tput sgr0)
+
+printf "${GREEN}Running Flink tests for WordCount application\n${NORMAL}"
 
 NTHREADS=32
 NSOURCE_MAX=4
-NSPLIT_MAX=8
-NCOUNT_MAX=8
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
-    # NSPLIT_MAX=$((NTHREADS-nsource-nsource-1))
-    for nsplit in $(seq $nsource $NSPLIT_MAX);
+    for nsplit in {0..13..2};
     do
-        for ncount in $(seq $nsplit $NCOUNT_MAX);
-        do
-            printf "flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $ncount --nsink 1 --rate 10000\n\n"
+        if [ $nsplit -eq 0 ];
+        then
+            printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter 1 --ncounter 1 --nsink 1 --rate 10000\n\n${NORMAL}"
 
-            ./run_params.sh $nsource $nsplit $ncount 1 10000
-        done
+            ./run_params.sh $nsource 1 1 1 10000
+
+        elif [ $nsplit -ge $nsource ];
+        then
+            for ncount in {2..13..2};
+            do
+                if [ $ncount -ge $nsplit ];
+                then
+                    printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $ncount --nsink 1 --rate 10000\n\n${NORMAL}"
+
+                    ./run_params.sh $nsource $nsplit $ncount 1 10000
+                fi
+            done
+        fi
     done
 done
