@@ -41,11 +41,6 @@ do
             printf "${BLUE}flink_spikedetection --nsource $nsource --naverage $navg --ndetector 1 --nsink 1 --rate -1\n\n${NORMAL}"
 
             ./run_params.sh $nsource $navg 1 1
-
-        else
-            printf "${BLUE}flink_spikedetection --nsource $nsource --naverage 29 --ndetector 1 --nsink 1 --rate -1\n\n${NORMAL}"
-
-            ./run_params.sh $nsource 29 1 1
         fi
     done
 done
