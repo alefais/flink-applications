@@ -37,7 +37,7 @@ do
 
             ./run_params.sh 1 1 1 1 $RATE
 
-        elif [ $nmatch -le $NMATCH_MAX ];
+        elif [ $nmatch -lt $NMATCH_MAX ];
         then
             printf "${BLUE}flink_trafficmonitoring --nsource 1 --nmatcher $nmatch --ncalculator 1 --nsink 1 --rate $RATE\n\n${NORMAL}"
 

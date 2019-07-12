@@ -40,6 +40,10 @@ else
     sleep 600 # 10 minutes
 fi
 
+flink cancel $(flink list | grep TrafficMonitoring | awk '{ print $4 }')
+
+sleep 10
+
 printf "${CYAN}saving logs...\n${NORMAL}"
 
 cp ~/flink-release/flink-1.7.2/log/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/
