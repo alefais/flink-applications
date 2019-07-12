@@ -26,22 +26,22 @@ do
             printf "${BLUE}extract from tests/output_60s/main_$nsource-1-1_-1.log\n\n${NORMAL}"
 
             # bandwidth
-            grep "Predictor" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' '{ print $20 }' >> tests/output_60s/bandwidth_$nsource-1.txt
+            grep "Predictor" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' '{ print $14 }' >> tests/output_60s/bandwidth_$nsource-1.txt
 
             # latency
-            grep "Sink" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
-            grep "Sink" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' 'FNR == 3 { print $10 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $10 }' >> tests/output_60s/latency_mean.txt
 
         elif [ $npred -le $NPRED_MAX ];
         then
             printf "${BLUE}extract from tests/output_60s/main_$nsource-$npred-1_-1.log\n\n${NORMAL}"
 
             # bandwidth
-            grep "Predictor" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' '{ print $20 }' >> tests/output_60s/bandwidth_$nsource-$npred.txt
+            grep "Predictor" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' '{ print $14 }' >> tests/output_60s/bandwidth_$nsource-$npred.txt
 
             # latency
-            grep "Sink" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
-            grep "Sink" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' 'FNR == 3 { print $10 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-$npred-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $10 }' >> tests/output_60s/latency_mean.txt
         fi
     done
 done
