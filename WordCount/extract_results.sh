@@ -29,8 +29,8 @@ do
             grep "Sink" tests/output_60s/main_$nsource-1-1-1_10000.log | awk  -F'[, ]' 'FNR == 1 { print $11 }' >> tests/output_60s/bandwidth_MB.txt
 
             # latency
-            grep "Sink" tests/output_60s/main_$nsource-1-1-1_10000.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
-            grep "Sink" tests/output_60s/main_$nsource-1-1-1_10000.log | awk  -F'[, ]' 'FNR == 3 { print $10 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-1-1-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-1-1-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
 
         elif [ $nsplit -ge $nsource ];
         then
@@ -45,8 +45,8 @@ do
                     grep "Sink" tests/output_60s/main_$nsource-$nsplit-$ncount-1_10000.log | awk  -F'[, ]' 'FNR == 1 { print $11 }' >> tests/output_60s/bandwidth_MB.txt
 
                     # latency
-                    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$ncount-1_10000.log | awk  -F'[, ]' 'FNR == 3 { print $10 " " $12 " " $14 " " $16 " " $18 " " $20 " " $22 " " $24 }' >> tests/output_60s/latency.txt
-                    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$ncount-1_10000.log | awk  -F'[, ]' 'FNR == 3 { print $10 }' >> tests/output_60s/latency_mean.txt
+                    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$ncount-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+                    grep "Sink" tests/output_60s/main_$nsource-$nsplit-$ncount-1_10000.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
 	            fi
             done
         fi
