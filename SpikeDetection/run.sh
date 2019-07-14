@@ -41,6 +41,16 @@ do
             printf "${BLUE}flink_spikedetection --nsource $nsource --naverage $navg --ndetector 1 --nsink 1 --rate -1\n\n${NORMAL}"
 
             ./run_params.sh $nsource $navg 1 1
+
+            for ndet in {2..8..2};
+            do
+                if [ $navg -le $((NTHREADS-nsource-ndet-1)) ];
+                then
+                    printf "${BLUE}flink_spikedetection --nsource $nsource --naverage $navg --ndetector $ndet --nsink 1 --rate -1\n\n${NORMAL}"
+
+                    ./run_params.sh $nsource $navg $ndet 1
+                fi
+            done
         fi
     done
 done

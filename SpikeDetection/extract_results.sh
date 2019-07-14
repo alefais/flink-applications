@@ -26,7 +26,7 @@ do
             printf "${BLUE}extract from tests/output_60s/main_$nsource-1-1-1_-1.log\n\n${NORMAL}"
 
             # bandwidth
-            grep "Average" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-1.txt
+            grep "Average" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-1-1.txt
 
             # latency
             grep "Sink" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
@@ -37,11 +37,26 @@ do
             printf "${BLUE}extract from tests/output_60s/main_$nsource-$navg-1-1_-1.log\n\n${NORMAL}"
 
             # bandwidth
-            grep "Average" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-$navg.txt
+            grep "Average" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-$navg-1.txt
 
             # latency
             grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
             grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+
+            for ndet in {2..8..2};
+            do
+                if [ $navg -le $((NTHREADS-nsource-ndet-1)) ];
+                then
+                    printf "${BLUE}extract from tests/output_60s/main_$nsource-$navg-$ndet-1_-1.log\n\n${NORMAL}"
+
+                    # bandwidth
+                    grep "Average" tests/output_60s/main_$nsource-$navg-$ndet-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-$navg-$ndet.txt
+
+                    # latency
+                    grep "Sink" tests/output_60s/main_$nsource-$navg-$ndet-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+                    grep "Sink" tests/output_60s/main_$nsource-$navg-$ndet-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+                fi
+            done
         fi
     done
 done
@@ -53,12 +68,19 @@ do
     do
         if [ $navg -eq 0 ];
         then
-            cat tests/output_60s/bandwidth_$nsource-1.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
+            cat tests/output_60s/bandwidth_$nsource-1-1.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
 
         elif [ $navg -le $NAVG_MAX ];
         then
-            cat tests/output_60s/bandwidth_$nsource-$navg.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
+            cat tests/output_60s/bandwidth_$nsource-$navg-1.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
 
+            for ndet in {2..8..2};
+            do
+                if [ $navg -le $((NTHREADS-nsource-ndet-1)) ];
+                then
+                    cat tests/output_60s/bandwidth_$nsource-$navg-$ndet.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
+                fi
+            done
         fi
     done
 done
