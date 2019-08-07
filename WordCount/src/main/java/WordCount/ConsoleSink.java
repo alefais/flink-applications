@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version August 2019
  *
  *  Sink node that receives and prints the results.
  */
@@ -101,11 +101,11 @@ public class ConsoleSink extends BaseRichBolt {
             System.out.println("[Sink] latency (ms): " +
                                 tuple_latencies.getMean() + " (mean) " +
                                 tuple_latencies.getMin() + " (min) " +
-                                tuple_latencies.getPercentile(0.05) + " (5th) " +
-                                tuple_latencies.getPercentile(0.25) + " (25th) " +
-                                tuple_latencies.getPercentile(0.5) + " (50th) " +
-                                tuple_latencies.getPercentile(0.75) + " (75th) " +
-                                tuple_latencies.getPercentile(0.95) + " (95th) " +
+                                tuple_latencies.getPercentile(5) + " (5th) " +
+                                tuple_latencies.getPercentile(25) + " (25th) " +
+                                tuple_latencies.getPercentile(50) + " (50th) " +
+                                tuple_latencies.getPercentile(75) + " (75th) " +
+                                tuple_latencies.getPercentile(95) + " (95th) " +
                                 tuple_latencies.getMax() + " (max).");
         }
     }
