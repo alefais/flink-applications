@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ############################################### extract results ########################################################
 
@@ -53,22 +53,22 @@ do
     do
         if [ $npred -eq 0 ];
         then
-            cat tests/output_60s/bandwidth_$nsource-1.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
+            cat tests/output_60s/bandwidth_$nsource-1.txt | awk '{ sum += $1 } END { print "1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
         elif [ $npred -le $NPRED_MAX ];
         then
-            cat tests/output_60s/bandwidth_$nsource-$npred.txt | awk '{ sum += $1 } END { print sum }' >> tests/output_60s/bandwidth.txt
+            cat tests/output_60s/bandwidth_$nsource-$npred.txt | awk '{ sum += $1 } END { print $npred " " sum }' >> tests/output_60s/bandwidth_$nsource.txt
         fi
     done
 done
 
-if [ ! -d tests/output_60s/logs ]; then
-    mkdir tests/output_60s/logs
-fi
+#if [ ! -d tests/output_60s/logs ]; then
+#    mkdir tests/output_60s/logs
+#fi
 
-mv tests/output_60s/*.log tests/output_60s/logs/
+#mv tests/output_60s/*.log tests/output_60s/logs/
 
-if [ ! -d tests/output_60s/statistics ]; then
-    mkdir tests/output_60s/statistics
-fi
+#if [ ! -d tests/output_60s/statistics ]; then
+#    mkdir tests/output_60s/statistics
+#fi
 
-mv tests/output_60s/*.txt tests/output_60s/statistics/
+#mv tests/output_60s/*.txt tests/output_60s/statistics/
