@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ############################################## create test directories #################################################
 
@@ -28,13 +28,16 @@ NSOURCE_MAX=4
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
     NAVG_MAX=$((NTHREADS-nsource-2))
-    for navg in {0..29..2};
+    for navg in {0..29..4};
     do
         if [ $navg -eq 0 ];
         then
             printf "${BLUE}flink_spikedetection --nsource $nsource --naverage 1 --ndetector 1 --nsink 1 --rate -1\n\n${NORMAL}"
 
             ./run_params.sh $nsource 1 1 1
+            ./run_params.sh $nsource 2 1 1
+            ./run_params.sh $nsource 2 2 1
+            ./run_params.sh $nsource 2 4 1
         
         elif [ $navg -le $NAVG_MAX ];
         then
@@ -42,7 +45,7 @@ do
 
             ./run_params.sh $nsource $navg 1 1
 
-            for ndet in {2..8..2};
+            for ndet in {2..4..2};
             do
                 if [ $navg -le $((NTHREADS-nsource-ndet-1)) ];
                 then
