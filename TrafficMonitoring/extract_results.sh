@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ############################################### extract results ########################################################
 
@@ -77,14 +77,14 @@ do
     done
 done
 
-if [ ! -d tests/output_60s/logs ]; then
-    mkdir tests/output_60s/logs
-fi
+#if [ ! -d tests/output_60s/logs ]; then
+#    mkdir tests/output_60s/logs
+#fi
 
-mv tests/output_60s/*.log tests/output_60s/logs/
+#mv tests/output_60s/*.log tests/output_60s/logs/
 
-if [ ! -d tests/output_60s/statistics ]; then
-    mkdir tests/output_60s/statistics
-fi
+#if [ ! -d tests/output_60s/statistics ]; then
+#    mkdir tests/output_60s/statistics
+#fi
 
-mv tests/output_60s/*.txt tests/output_60s/statistics/
+#mv tests/output_60s/*.txt tests/output_60s/statistics/

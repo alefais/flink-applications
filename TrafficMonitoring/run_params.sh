@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ###################################################### single test ###########################################################################
 
@@ -35,7 +35,7 @@ flink stop $(flink list | grep TrafficMonitoring | awk '{ print $4 }')
 
 if [ $2 -lt 4 ]
 then
-    sleep 1800 # 30 minutes
+    sleep 1200 # 20 minutes
 else
     sleep 600 # 10 minutes
 fi

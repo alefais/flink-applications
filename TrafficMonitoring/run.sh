@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ############################################## create test directories #################################################
 
