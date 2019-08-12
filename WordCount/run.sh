@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # @author   Alessandra Fais
-# @date     July 2019
+# @date     August 2019
 
 ############################################## create test directories #################################################
 
@@ -24,26 +24,35 @@ NORMAL=$(tput sgr0)
 printf "${GREEN}Running Flink tests for WordCount application\n${NORMAL}"
 
 NTHREADS=32
-NSOURCE_MAX=4
+NSOURCE_MAX=6
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
-    for nsplit in {0..13..2};
+    NSPLIT_MAX=$((NTHREADS-nsource-2))
+    for nsplit in {0..29..4};
     do
         if [ $nsplit -eq 0 ];
         then
-            printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter 1 --ncounter 1 --nsink 1 --rate 10000\n\n${NORMAL}"
+            printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter 1 --ncounter 1 --nsink 1 --rate -1\n\n${NORMAL}"
 
-            ./run_params.sh $nsource 1 1 1 10000
+            ./run_params.sh $nsource 1 1 1
+            ./run_params.sh $nsource 2 1 1
+            ./run_params.sh $nsource 2 2 1
+            ./run_params.sh $nsource 2 4 1
 
-        elif [ $nsplit -ge $nsource ];
+        elif [ $nsplit -le $NSPLIT_MAX ];
         then
-            for ncount in {2..13..2};
-            do
-                if [ $ncount -ge $nsplit ];
-                then
-                    printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $ncount --nsink 1 --rate 10000\n\n${NORMAL}"
+            if [ $nsplit -gt "2" ];
+            then
+                ./run_params.sh $nsource $nsplit 1 1
+            fi
 
-                    ./run_params.sh $nsource $nsplit $ncount 1 10000
+            for ncount in {2..4..2};
+            do
+                if [ $nsplit -le $((NTHREADS-nsource-ncount-1)) ];
+                then
+                    printf "${BLUE}flink_wordcount --nsource $nsource --nsplitter $nsplit --ncounter $ncount --nsink 1 --rate -1\n\n${NORMAL}"
+
+                    ./run_params.sh $nsource $nsplit $ncount 1
                 fi
             done
         fi

@@ -23,9 +23,9 @@ sleep 5
 
 sleep 10
 
-printf "${CYAN}executing WordCount --nsource $1 --nsplitter $2 --ncounter $3 --nsink $4 --rate $5 for 60s...\n${NORMAL}"
+printf "${CYAN}executing WordCount --nsource $1 --nsplitter $2 --ncounter $3 --nsink $4 --rate -1 for 60s...\n${NORMAL}"
 
-flink run -c WordCount.WordCount target/WordCount-1.0-SNAPSHOT-jar-with-dependencies.jar --nsource $1 --nsplitter $2 --ncounter $3 --nsink $4 --rate $5 &
+flink run -c WordCount.WordCount target/WordCount-1.0-SNAPSHOT-jar-with-dependencies.jar --nsource $1 --nsplitter $2 --ncounter $3 --nsink $4 --rate -1 &
 
 sleep 65
 
@@ -38,4 +38,4 @@ sleep 20
 printf "${CYAN}saving logs...\n${NORMAL}"
 
 cp ~/flink-release/flink-1.7.2/log/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/
-mv tests/output_60s/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/main_$1-$2-$3-$4_$5.log
+mv tests/output_60s/flink-fais-taskexecutor-?-pianosau.out tests/output_60s/main_$1-$2-$3-$4_-1.log
