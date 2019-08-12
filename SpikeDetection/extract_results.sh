@@ -19,7 +19,7 @@ NSOURCE_MAX=4
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
     NAVG_MAX=$((NTHREADS-nsource-2))
-    for navg in {0..29..2};
+    for navg in {0..29..4};
     do
         if [ $navg -eq 0 ];
         then
@@ -27,21 +27,33 @@ do
 
             # bandwidth
             grep "Average" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-1-1.txt
+            grep "Average" tests/output_60s/main_$nsource-2-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-2-1.txt
+            grep "Average" tests/output_60s/main_$nsource-2-2-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-2-2.txt
+            grep "Average" tests/output_60s/main_$nsource-2-4-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-2-4.txt
 
             # latency
             grep "Sink" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-2-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-4-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
             grep "Sink" tests/output_60s/main_$nsource-1-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-2-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+            grep "Sink" tests/output_60s/main_$nsource-2-4-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
 
         elif [ $navg -le $NAVG_MAX ];
         then
             printf "${BLUE}extract from tests/output_60s/main_$nsource-$navg-1-1_-1.log\n\n${NORMAL}"
 
-            # bandwidth
-            grep "Average" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-$navg-1.txt
+            if [ $navg -gt "2" ];
+            then
+                # bandwidth
+                grep "Average" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' '{ print $11 }' >> tests/output_60s/bandwidth_$nsource-$navg-1.txt
 
-            # latency
-            grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
-            grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+                # latency
+                grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 " " $6 " " $8 " " $10 " " $12 " " $14 " " $16 " " $18 }' >> tests/output_60s/latency.txt
+                grep "Sink" tests/output_60s/main_$nsource-$navg-1-1_-1.log | awk  -F'[, ]' 'FNR == 2 { print $4 }' >> tests/output_60s/latency_mean.txt
+            fi
 
             for ndet in {2..4..2};
             do
@@ -64,15 +76,21 @@ done
 for nsource in $(seq 1 $NSOURCE_MAX);
 do
     NAVG_MAX=$((NTHREADS-nsource-2))
-    for navg in {0..29..2};
+    for navg in {0..29..4};
     do
         if [ $navg -eq 0 ];
         then
             cat tests/output_60s/bandwidth_$nsource-1-1.txt | awk '{ sum += $1 } END { print "1 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
+            cat tests/output_60s/bandwidth_$nsource-2-1.txt | awk '{ sum += $1 } END { print "1 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
+            cat tests/output_60s/bandwidth_$nsource-2-2.txt | awk '{ sum += $1 } END { print "1 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
+            cat tests/output_60s/bandwidth_$nsource-2-4.txt | awk '{ sum += $1 } END { print "1 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
 
         elif [ $navg -le $NAVG_MAX ];
         then
-            cat tests/output_60s/bandwidth_$nsource-$navg-1.txt | awk '{ sum += $1 } END { print $navg " 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
+            if [ $navg -gt "2" ];
+            then
+                cat tests/output_60s/bandwidth_$nsource-$navg-1.txt | awk '{ sum += $1 } END { print $navg " 1 " sum }' >> tests/output_60s/bandwidth_$nsource.txt
+            fi
 
             for ndet in {2..4..2};
             do
