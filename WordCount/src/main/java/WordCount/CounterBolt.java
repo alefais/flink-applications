@@ -84,6 +84,13 @@ public class CounterBolt extends BaseRichBolt {
                             "bandwidth: " + words / (t_elapsed / 1000) + " (words/s) "
                             + formatted_mbs + " (MB/s) "
                             + bytes / (t_elapsed / 1000) + " (bytes/s)");
+
+        /*
+        System.out.println("Map size " + counts.size() + " different words.");
+        for (String w : counts.keySet()) {
+            System.out.println("<" + w + ", " + counts.get(w).get() + "> ");
+        }
+         */
     }
 
     @Override
