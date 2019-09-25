@@ -13,7 +13,7 @@ From inside the root directory `FraudDetection/`
 ### Execution examples:
 * No argument is passed (all the nodes have parallelism degree equal to 1, the source generation rate is the maximum possible, the execution is local): <br> `$FLINK_HOME/bin/flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
-* The parallelism degree is explicitly set for all the nodes in the topology and the data set file used as input is the one in the `FraudDetection/data` directory (<b>NB:</b> for each unspecified parameter the default value is used, as the generation rate that will be not limited with the following configuration): <br> `$FLINK_HOME/bin/flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --nsource 1 --npredictor 8 --nsink 1`
+* The parallelism degree is explicitly set for all the nodes in the topology and the data set file used as input is the one in the `FraudDetection/data/` directory (<b>NB:</b> for each unspecified parameter the default value is used, as the generation rate that will be not limited with the following configuration): <br> `$FLINK_HOME/bin/flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --nsource 1 --npredictor 8 --nsink 1`
 
 * The parallelism degree is explicitly set for all the nodes in the topology, a specific file path is passed and the generation rate is fixed (<b>NB:</b> for each unspecified parameter the default value is used, as in the previous case): <br> `$FLINK_HOME/bin/flink run -c FraudDetection.FraudDetection target/FraudDetection-1.0-SNAPSHOT-jar-with-dependencies.jar --file ~/data/app/fd/credit-card.dat --nsource 1 --npredictor 2 --nsink 1 --rate 1000`
 
