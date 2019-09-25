@@ -1,4 +1,4 @@
-# Compile and run FraudDetection
+# Compile and run the Fraud Detection application
 
 ## Compile
 From inside the root directory `FraudDetection/`
