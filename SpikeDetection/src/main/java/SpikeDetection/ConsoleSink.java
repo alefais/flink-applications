@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version August 2019
+ *  @version Nov 2019
  *
  *  Sink node that receives and prints the results.
  */
@@ -68,8 +68,6 @@ public class ConsoleSink extends BaseRichBolt {
         long now = System.nanoTime();
         double tuple_latency = (double)(now - timestamp) / 1000000.0; // tuple latency in ms
         tuple_latencies.addValue(tuple_latency);
-
-        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();

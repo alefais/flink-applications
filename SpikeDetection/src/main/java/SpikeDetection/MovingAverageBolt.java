@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  The bolt is in charge of computing the average over a window of values.
  *  It manages one window for each device_id.
@@ -69,8 +69,8 @@ public class MovingAverageBolt extends BaseRichBolt {
 
         double moving_avg_instant = movingAverage(deviceID, next_property_value);
 
-        collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
-        collector.ack(tuple);
+        // emit unanchored tuple
+        collector.emit(new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
 
         LOG.debug("[Average] tuple: deviceID " + deviceID +
                         ", incremental_average " + moving_avg_instant +

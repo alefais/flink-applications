@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  The bolt is in charge of detecting spikes in the measurements received by sensors
  *  with respect to a properly defined threshold.
@@ -69,9 +69,10 @@ public class SpikeDetectorBolt extends BaseRichBolt {
 
         if (Math.abs(next_property_value - moving_avg_instant) > spike_threshold * moving_avg_instant) {
             spikes++;
-            collector.emit(tuple, new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
+
+            // emit unanchored tuple
+            collector.emit(new Values(deviceID, moving_avg_instant, next_property_value, timestamp));
         }
-        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
