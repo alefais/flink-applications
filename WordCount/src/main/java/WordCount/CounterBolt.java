@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  Counts words' occurrences.
  */
@@ -65,9 +65,9 @@ public class CounterBolt extends BaseRichBolt {
             MutableLong count = counts.computeIfAbsent(word, k -> new MutableLong(0));
             count.increment();
 
+            // emit unanchored tuple
             collector.emit(new Values(word, count.get(), timestamp));
         }
-        collector.ack(tuple);
 
         t_end = System.nanoTime();
     }

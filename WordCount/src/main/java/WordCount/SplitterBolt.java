@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  Splits all the received lines into words.
  */
@@ -65,13 +65,15 @@ public class SplitterBolt extends BaseRichBolt {
             String[] words = line.split("\\W");
             for (String word : words) {
                 if (!StringUtils.isBlank(word)) {
-                    collector.emit(tuple, new Values(word, timestamp));
+
+                    // emit unanchored tuple
+                    collector.emit(new Values(word, timestamp));
+
                     LOG.debug("[SplitterBolt] Sending `" + word + "`");
                     word_count++;
                 }
             }
         }
-        collector.ack(tuple);
 
         t_end = System.nanoTime();
     }
