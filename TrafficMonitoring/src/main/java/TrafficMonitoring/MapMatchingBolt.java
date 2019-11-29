@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  This operator receives traces of the vehicles (e.g. through GPS loggers
  *  and GPS phones) including latitude, longitude, speed and direction. These
@@ -139,12 +139,12 @@ public class MapMatchingBolt extends BaseRichBolt {
                 }
                 all_keys++;
 
-                collector.emit(tuple, new Values(roadID, speed, timestamp));
+                // emit unanchored tuple
+                collector.emit(new Values(roadID, speed, timestamp));
             }
         } catch (SQLException e) {
             LOG.error("Unable to fetch road ID", e);
         }
-        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
