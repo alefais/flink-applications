@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  *  @author  Alessandra Fais
- *  @version July 2019
+ *  @version Nov 2019
  *
  *  The bolt is in charge of implementing outliers detection.
  *  Given a transaction sequence of a customer, there is a probability associated with each path
@@ -76,13 +76,13 @@ public class FraudPredictorBolt extends BaseRichBolt {
         // send outliers
         if (p.isOutlier()) {
             outliers++;
-            collector.emit(tuple,
-                    new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), timestamp));
+
+            // emit unanchored tuple
+            collector.emit(new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), timestamp));
 
             LOG.debug("[Predictor] outlier: entityID " + entityID + ", score " + p.getScore() +
                     ", states " + StringUtils.join(p.getStates(), ","));
         }
-        collector.ack(tuple);
 
         processed++;
         t_end = System.nanoTime();
