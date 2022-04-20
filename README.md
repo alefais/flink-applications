@@ -1,4 +1,4 @@
-# Benchmarching Applications - Flink version
+# Benchmarking Applications - Flink version
 
 This repository contains a collection of Data Stream Processing applications implemented with [Apache Storm](http://storm.apache.org/) and adapted to be executed on [Apache Flink](https://ci.apache.org/projects/flink/flink-docs-release-1.7/) by means of the [Storm Compatibility API](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/storm_compatibility.html).
 
